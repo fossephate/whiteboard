@@ -776,24 +776,24 @@ export class AppState extends StateManager<State> {
   }
 
   finishStyleUpdate = () => {
-    const { state, snapshot } = this
-    const { shapes } = state.page
+    // const { state, snapshot } = this
+    // const { shapes } = state.page
 
-    return this.setState({
-      before: snapshot,
-      after: {
-        appState: {
-          style: state.appState.style,
-        },
-        page: {
-          shapes: {
-            ...Object.fromEntries(
-              Object.entries(shapes).map(([id, { style }]) => [id, { style }])
-            ),
-          },
-        },
-      },
-    })
+    // return this.setState({
+    //   before: snapshot,
+    //   after: {
+    //     appState: {
+    //       style: state.appState.style,
+    //     },
+    //     page: {
+    //       shapes: {
+    //         ...Object.fromEntries(
+    //           Object.entries(shapes).map(([id, { style }]) => [id, { style }])
+    //         ),
+    //       },
+    //     },
+    //   },
+    // })
   }
 
   setNextStyleForAllShapes = (style: Partial<DrawStyles>) => {
