@@ -55,6 +55,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('reset-doc', (data) => {
+    lastState = null;
     socket.broadcast.emit('reset-doc', data);
   });
 
