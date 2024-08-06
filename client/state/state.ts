@@ -167,7 +167,6 @@ export class AppState extends StateManager<State> {
       }
     });
 
-
     socket.on('erase-all', (data) => {
       this.setState({
         before: {
@@ -238,11 +237,6 @@ export class AppState extends StateManager<State> {
     })
 
     this.socket = socket;
-
-    if (Object.values(this.state.page.shapes).length === 0) {
-      this.addShape({ id: 'sample', points: sample })
-      this.centerShape('sample')
-    }
   }
 
   cleanup = (state: State) => {
@@ -876,8 +870,8 @@ export class AppState extends StateManager<State> {
   }
 
   resetStyles = () => {
-    const { shapes } = this.state.page
-    const { state } = this
+    const { shapes } = this.state.page;
+    const { state } = this;
 
     const currentAppState = state.appState
     const initialAppState = initialState.appState

@@ -360,14 +360,14 @@ export function Controls() {
           checked={style.isFilled}
           onCheckedChange={handleIsFilledChange}
         /> */}
-        {style.isFilled && (
+        {/* {style.isFilled && (
           <Colors
             name=""
             color={style.fill}
             colors={COLORS}
             onChange={handleFillColorChange}
           />
-        )}
+        )} */}
         {/* <Slider
           name="Stroke"
           value={[style.strokeWidth]}
@@ -379,14 +379,14 @@ export function Controls() {
           onPointerDown={handleStrokeWidthChangeStart}
           onPointerUp={handleStyleChangeComplete}
         /> */}
-        {style.strokeWidth > 0 && (
+        {/* {style.strokeWidth > 0 && (
           <Colors
             name=""
             color={style.stroke}
             colors={COLORS}
             onChange={handleStrokeColorChange}
           />
-        )}
+        )} */}
       </div>
       <hr />
       <div className={styles.buttonsRow}>
