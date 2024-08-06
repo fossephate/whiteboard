@@ -3,10 +3,6 @@ import { Renderer } from '@tldraw/core'
 import { app, useAppState } from 'state'
 import styles from './editor.module.css'
 
-
-import { io } from 'socket.io-client';
-const socket = io('https://fosse.co', { path: "/8201/socket.io" })
-
 export function Editor(): JSX.Element {
   const {
     onPinch,
@@ -24,24 +20,7 @@ export function Editor(): JSX.Element {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     window.freehand = app
-
-
-    socket.on('drawing', (data) => {
-      app.page.shapes = data.shapes;
-      app.pageState = data.pageState;
-      app.notifyChange();
-    });
-
-    return () => {
-      socket.off('drawing');
-    };
   }, [])
-
-
-  const handlePointerUp = React.useCallback((e) => {
-    onPointerUp(e);
-    socket.emit('drawing', { shapes: app.page.shapes, pageState: app.pageState });
-  }, [onPointerUp]);
 
 
   return (

@@ -42,7 +42,7 @@ importers:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
       socket.io-client:
-        specifier: ^4.5.3
+        specifier: ^4.7.5
         version: 4.7.5(bufferutil@4.0.8)(utf-8-validate@6.0.4)
       typescript:
         specifier: 4.8.4
@@ -55,32 +55,32 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0(react@18.2.0)
       '@radix-ui/react-checkbox':
-        specifier: ^0.1.0
+        specifier: ^0.1.5
         version: 0.1.5(react@18.2.0)
       '@radix-ui/react-icons':
-        specifier: ^1.0.3
+        specifier: ^1.3.0
         version: 1.3.0(react@18.2.0)
       '@radix-ui/react-label':
         specifier: ^0.1.5
         version: 0.1.5(react@18.2.0)
       '@radix-ui/react-slider':
-        specifier: ^0.1.0
+        specifier: ^0.1.4
         version: 0.1.4(react@18.2.0)
       '@tldraw/core':
-        specifier: ^0.1.19
-        version: 0.1.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^1.23.2
+        version: 1.23.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@tldraw/intersect':
-        specifier: ^0.1.3
-        version: 0.1.4
+        specifier: ^1.9.2
+        version: 1.9.2
       '@tldraw/vec':
-        specifier: ^0.1.3
-        version: 0.1.3
+        specifier: ^1.7.0
+        version: 1.9.2
       '@types/react-color':
-        specifier: ^3.0.6
+        specifier: ^3.0.12
         version: 3.0.12
       autoprefixer:
-        specifier: ^10.4.13
-        version: 10.4.20(postcss@8.4.40)
+        specifier: ^10.4.20
+        version: 10.4.20(postcss@8.4.41)
       concurrently:
         specifier: 6.0.1
         version: 6.0.1
@@ -91,22 +91,22 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3
       esbuild:
-        specifier: ^0.12.21
+        specifier: ^0.12.29
         version: 0.12.29
       esbuild-css-modules-plugin:
-        specifier: ^2.0.8
+        specifier: ^2.7.1
         version: 2.7.1(esbuild@0.12.29)
       husky:
-        specifier: ^7.0.0
+        specifier: ^7.0.4
         version: 7.0.4
       jest:
-        specifier: ^27.0.6
+        specifier: ^27.5.1
         version: 27.5.1(bufferutil@4.0.8)(utf-8-validate@6.0.4)
       postcss:
-        specifier: ^8.4.19
-        version: 8.4.40
+        specifier: ^8.4.41
+        version: 8.4.41
       react-hotkeys-hook:
-        specifier: ^3.4.0
+        specifier: ^3.4.7
         version: 3.4.7(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       rimraf:
         specifier: 3.0.2
@@ -115,13 +115,13 @@ importers:
         specifier: ^0.5.25
         version: 0.5.25(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       tailwindcss:
-        specifier: ^3.2.4
+        specifier: ^3.4.7
         version: 3.4.7
       tslib:
-        specifier: ^2.3.1
+        specifier: ^2.6.3
         version: 2.6.3
       zustand:
-        specifier: ^4.0.0-rc.1
+        specifier: ^4.5.4
         version: 4.5.4(@types/react@18.0.25)(react@18.2.0)
 
 packages:
@@ -600,20 +600,14 @@ packages:
   '@swc/helpers@0.4.11':
     resolution: {integrity: sha512-rEUrBSGIoSFuYxwBYtlUFMlE2CwGhmW+w9355/5oduSw8e5h2+Tj4UrAGNNgP9915++wj5vkQo0UuOBqOAq4nw==}
 
-  '@tldraw/core@0.1.21':
-    resolution: {integrity: sha512-qaqXqVbeEq9jbjBsODS+UV/7opf4TyLOAi58gw94XC6tPwHpl8pkIvCKnyl10lHhac0GxGxSB+MPyKhlKioeZg==}
+  '@tldraw/core@1.23.2':
+    resolution: {integrity: sha512-cx+KfqemSHvVonNGwEolosMOsJt5cl3PGRBaXcZOOXQxnFALF22dnMtm6lbmlQQA71EfqNMP5e+qV3jCwuYaqA==}
     peerDependencies:
       react: '>=16.8'
-      react-dom: ^16.8 || ^17.0
-
-  '@tldraw/intersect@0.1.4':
-    resolution: {integrity: sha512-pxNMyUD9BMy0JqUSik4RXhf/meRA1TwJ3zESLebQ3EB3kThd9zICIUH5U8RmosvBx0c7dLMTvVzA1yVRbQBslQ==}
+      react-dom: '>=16.8'
 
   '@tldraw/intersect@1.9.2':
     resolution: {integrity: sha512-teUQLy+p5YT4PIKOHaL+zM0NYD1779mPp02xabP+5LGLvv7tt9VaqJ9D899EYppQbBLN6be6CJUrmibrvLtnUQ==}
-
-  '@tldraw/vec@0.1.3':
-    resolution: {integrity: sha512-QIQu6xHWqYBarfCR2Cd55pb+HECCEFI3RlU0VEueztzGe2k5Mwcv1EuuIdPTZ1tg5o95Deo7mYgZKeZTcUCIxA==}
 
   '@tldraw/vec@1.9.2':
     resolution: {integrity: sha512-k9vH52MRpJHjVcaahWu6VqvhLeE9h1qL5Z2gLobS9zTMpUJ59kBQPNo0VPzPlDYBpXdS4GxuB4jYQMnKvuPAZg==}
@@ -944,8 +938,8 @@ packages:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
 
-  caniuse-lite@1.0.30001647:
-    resolution: {integrity: sha512-n83xdNiyeNcHpzWY+1aFbqCK7LuLfBricc4+alSQL2Xb6OR3XpnQAmlDG+pQcdTfiHRuLcQ96VOfrPSGiNJYSg==}
+  caniuse-lite@1.0.30001649:
+    resolution: {integrity: sha512-fJegqZZ0ZX8HOWr6rcafGr72+xcgJKI9oWfDW5DrD7ExUtgZC7a7R7ZYmZqplh7XDocFdGeIFn7roAxhOeYrPQ==}
 
   chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
@@ -1156,8 +1150,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  electron-to-chromium@1.5.4:
-    resolution: {integrity: sha512-orzA81VqLyIGUEA77YkVA1D+N+nNfl2isJVjjmOyrlxuooZ19ynb+dOlaDTqd/idKRS9lDCSBmtzM+kyCsMnkA==}
+  electron-to-chromium@1.5.5:
+    resolution: {integrity: sha512-QR7/A7ZkMS8tZuoftC/jfqNkZLQO779SSW3YuZHP4eXpj3EffGLFcB/Xu9AAZQzLccTiCV+EmUo3ha4mQ9wnlA==}
 
   emittery@0.8.1:
     resolution: {integrity: sha512-uDfvUjVrfGJJhymx/kz6prltenw1u7WrCg1oa94zYY8xxVpLLUu045LAT0dhDZdXG58/EpPL/5kA180fQ/qudg==}
@@ -2431,8 +2425,8 @@ packages:
     resolution: {integrity: sha512-E398TUmfAYFPBSdzgeieK2Y1+1cpdxJx8yXbK/m57nRhKSmk1GB2tO4lbLBtlkfPQTDKfe4Xqv1ASWPpayPEig==}
     engines: {node: ^10 || ^12 || >=14}
 
-  postcss@8.4.40:
-    resolution: {integrity: sha512-YF2kKIUzAofPMpfH6hOi2cGnv/HrUlfucspc7pDyvv7kGdqXrfj8SCl/t8owkEgKEuu8ZcRjSOxFxVLqwChZ2Q==}
+  postcss@8.4.41:
+    resolution: {integrity: sha512-TesUflQ0WKZqAvg52PWL6kHgLKP6xB6heTOdoYM0Wt2UHyxNa4K25EZZMgKns3BH1RLVbZCREPpLY0rhnNoHVQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   prelude-ls@1.2.1:
@@ -3714,23 +3708,18 @@ snapshots:
     dependencies:
       tslib: 2.6.3
 
-  '@tldraw/core@0.1.21(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@tldraw/core@1.23.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@tldraw/intersect': 1.9.2
       '@tldraw/vec': 1.9.2
       '@use-gesture/react': 10.3.1(react@18.2.0)
+      perfect-freehand: 1.2.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-
-  '@tldraw/intersect@0.1.4':
-    dependencies:
-      '@tldraw/vec': 0.1.3
 
   '@tldraw/intersect@1.9.2':
     dependencies:
       '@tldraw/vec': 1.9.2
-
-  '@tldraw/vec@0.1.3': {}
 
   '@tldraw/vec@1.9.2': {}
 
@@ -3995,14 +3984,14 @@ snapshots:
 
   asynckit@0.4.0: {}
 
-  autoprefixer@10.4.20(postcss@8.4.40):
+  autoprefixer@10.4.20(postcss@8.4.41):
     dependencies:
       browserslist: 4.23.3
-      caniuse-lite: 1.0.30001647
+      caniuse-lite: 1.0.30001649
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.0.1
-      postcss: 8.4.40
+      postcss: 8.4.41
       postcss-value-parser: 4.2.0
 
   available-typed-arrays@1.0.7:
@@ -4089,8 +4078,8 @@ snapshots:
 
   browserslist@4.23.3:
     dependencies:
-      caniuse-lite: 1.0.30001647
-      electron-to-chromium: 1.5.4
+      caniuse-lite: 1.0.30001649
+      electron-to-chromium: 1.5.5
       node-releases: 2.0.18
       update-browserslist-db: 1.1.0(browserslist@4.23.3)
 
@@ -4120,7 +4109,7 @@ snapshots:
 
   camelcase@6.3.0: {}
 
-  caniuse-lite@1.0.30001647: {}
+  caniuse-lite@1.0.30001649: {}
 
   chalk@2.4.2:
     dependencies:
@@ -4333,7 +4322,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  electron-to-chromium@1.5.4: {}
+  electron-to-chromium@1.5.5: {}
 
   emittery@0.8.1: {}
 
@@ -4469,8 +4458,8 @@ snapshots:
       fs-extra: 10.1.0
       lightningcss: 1.26.0
       lodash: 4.17.21
-      postcss: 8.4.40
-      postcss-modules: 6.0.0(postcss@8.4.40)
+      postcss: 8.4.41
+      postcss-modules: 6.0.0(postcss@8.4.41)
       tmp: 0.2.3
 
   esbuild@0.12.29: {}
@@ -4943,9 +4932,9 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
-  icss-utils@5.1.0(postcss@8.4.40):
+  icss-utils@5.1.0(postcss@8.4.41):
     dependencies:
-      postcss: 8.4.40
+      postcss: 8.4.41
 
   idb-keyval@5.1.5:
     dependencies:
@@ -5732,7 +5721,7 @@ snapshots:
     dependencies:
       '@next/env': 13.0.3
       '@swc/helpers': 0.4.11
-      caniuse-lite: 1.0.30001647
+      caniuse-lite: 1.0.30001649
       postcss: 8.4.14
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -5905,61 +5894,61 @@ snapshots:
 
   possible-typed-array-names@1.0.0: {}
 
-  postcss-import@15.1.0(postcss@8.4.40):
+  postcss-import@15.1.0(postcss@8.4.41):
     dependencies:
-      postcss: 8.4.40
+      postcss: 8.4.41
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
       resolve: 1.22.8
 
-  postcss-js@4.0.1(postcss@8.4.40):
+  postcss-js@4.0.1(postcss@8.4.41):
     dependencies:
       camelcase-css: 2.0.1
-      postcss: 8.4.40
+      postcss: 8.4.41
 
-  postcss-load-config@4.0.2(postcss@8.4.40):
+  postcss-load-config@4.0.2(postcss@8.4.41):
     dependencies:
       lilconfig: 3.1.2
       yaml: 2.5.0
     optionalDependencies:
-      postcss: 8.4.40
+      postcss: 8.4.41
 
-  postcss-modules-extract-imports@3.1.0(postcss@8.4.40):
+  postcss-modules-extract-imports@3.1.0(postcss@8.4.41):
     dependencies:
-      postcss: 8.4.40
+      postcss: 8.4.41
 
-  postcss-modules-local-by-default@4.0.5(postcss@8.4.40):
+  postcss-modules-local-by-default@4.0.5(postcss@8.4.41):
     dependencies:
-      icss-utils: 5.1.0(postcss@8.4.40)
-      postcss: 8.4.40
+      icss-utils: 5.1.0(postcss@8.4.41)
+      postcss: 8.4.41
       postcss-selector-parser: 6.1.1
       postcss-value-parser: 4.2.0
 
-  postcss-modules-scope@3.2.0(postcss@8.4.40):
+  postcss-modules-scope@3.2.0(postcss@8.4.41):
     dependencies:
-      postcss: 8.4.40
+      postcss: 8.4.41
       postcss-selector-parser: 6.1.1
 
-  postcss-modules-values@4.0.0(postcss@8.4.40):
+  postcss-modules-values@4.0.0(postcss@8.4.41):
     dependencies:
-      icss-utils: 5.1.0(postcss@8.4.40)
-      postcss: 8.4.40
+      icss-utils: 5.1.0(postcss@8.4.41)
+      postcss: 8.4.41
 
-  postcss-modules@6.0.0(postcss@8.4.40):
+  postcss-modules@6.0.0(postcss@8.4.41):
     dependencies:
       generic-names: 4.0.0
-      icss-utils: 5.1.0(postcss@8.4.40)
+      icss-utils: 5.1.0(postcss@8.4.41)
       lodash.camelcase: 4.3.0
-      postcss: 8.4.40
-      postcss-modules-extract-imports: 3.1.0(postcss@8.4.40)
-      postcss-modules-local-by-default: 4.0.5(postcss@8.4.40)
-      postcss-modules-scope: 3.2.0(postcss@8.4.40)
-      postcss-modules-values: 4.0.0(postcss@8.4.40)
+      postcss: 8.4.41
+      postcss-modules-extract-imports: 3.1.0(postcss@8.4.41)
+      postcss-modules-local-by-default: 4.0.5(postcss@8.4.41)
+      postcss-modules-scope: 3.2.0(postcss@8.4.41)
+      postcss-modules-values: 4.0.0(postcss@8.4.41)
       string-hash: 1.1.3
 
-  postcss-nested@6.2.0(postcss@8.4.40):
+  postcss-nested@6.2.0(postcss@8.4.41):
     dependencies:
-      postcss: 8.4.40
+      postcss: 8.4.41
       postcss-selector-parser: 6.1.1
 
   postcss-selector-parser@6.1.1:
@@ -5975,7 +5964,7 @@ snapshots:
       picocolors: 1.0.1
       source-map-js: 1.2.0
 
-  postcss@8.4.40:
+  postcss@8.4.41:
     dependencies:
       nanoid: 3.3.7
       picocolors: 1.0.1
@@ -6383,11 +6372,11 @@ snapshots:
       normalize-path: 3.0.0
       object-hash: 3.0.0
       picocolors: 1.0.1
-      postcss: 8.4.40
-      postcss-import: 15.1.0(postcss@8.4.40)
-      postcss-js: 4.0.1(postcss@8.4.40)
-      postcss-load-config: 4.0.2(postcss@8.4.40)
-      postcss-nested: 6.2.0(postcss@8.4.40)
+      postcss: 8.4.41
+      postcss-import: 15.1.0(postcss@8.4.41)
+      postcss-js: 4.0.1(postcss@8.4.41)
+      postcss-load-config: 4.0.2(postcss@8.4.41)
+      postcss-nested: 6.2.0(postcss@8.4.41)
       postcss-selector-parser: 6.1.1
       resolve: 1.22.8
       sucrase: 3.35.0

@@ -11,9 +11,9 @@ export function useKeyboardShortcuts() {
     app.redo()
   })
 
-  useHotkeys('command+c,ctrl+c', () => {
-    app.copySvg()
-  })
+  // useHotkeys('command+c,ctrl+c', () => {
+  //   app.copySvg()
+  // })
 
   useHotkeys('command+shift+c,ctrl+shift+c', () => {
     app.copyStyles()

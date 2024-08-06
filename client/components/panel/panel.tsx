@@ -32,12 +32,12 @@ export function Panel() {
         </a>
       </div>
       <div className={[styles.container, styles.bottom, styles.left].join(' ')}>
-        <button
+        {/* <button
           onClick={app.selectDrawingTool}
           data-active={tool === 'drawing'}
         >
           Draw
-        </button>
+        </button> */}
         {/* <button
           onClick={app.selectErasingTool}
           data-active={tool === 'erasing'}
@@ -48,8 +48,14 @@ export function Panel() {
       <div
         className={[styles.container, styles.bottom, styles.right].join(' ')}
       >
-        <button onClick={app.undo}>Undo</button>
-        <button onClick={app.redo}>Redo</button>
+        <button onClick={() => {
+          app.undo();
+          app.undo2();
+        }}>Undo</button>
+        <button onClick={() => {
+          app.redo();
+          app.redo2();
+        }}>Redo</button>
         <button onClick={app.resetDoc}>Clear</button>
       </div>
     </>

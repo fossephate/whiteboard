@@ -10,13 +10,7 @@ const io = new Server(server, {
   },
 })
 
-type Point = { x: number; y: number }
-
-type DrawLine = {
-  prevPoint: Point | null
-  currentPoint: Point
-  color: string
-}
+let lastState: any = {};
 
 io.on('connection', (socket) => {
   // socket.on('client-ready', () => {
@@ -32,6 +26,10 @@ io.on('connection', (socket) => {
   //   socket.broadcast.emit('draw-line', { prevPoint, currentPoint, color })
   // })
 
+  socket.on('get-state', (data) => {
+    socket.emit('state-from-server', lastState);
+  });
+
   socket.on('pointer-start', (data) => {
     socket.broadcast.emit('pointer-start', data);
   });
@@ -45,8 +43,23 @@ io.on('connection', (socket) => {
   });
 
 
-  socket.on('shape-complete', (data) => {
-    socket.broadcast.emit('shape-complete', data);
+  socket.on('undo', (data) => {
+    socket.broadcast.emit('undo', data);
+  });
+
+  socket.on('redo', (data) => {
+    socket.broadcast.emit('redo', data);
+  });
+
+
+  socket.on('set-state', (data) => {
+    lastState = data;
+  });
+
+  // force update other clients:
+  socket.on('force-state', (data) => {
+    lastState = data;
+    socket.broadcast.emit('state-from-server', data);
   });
 
   socket.on('erase-all', (data) => {

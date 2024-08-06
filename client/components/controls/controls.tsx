@@ -50,7 +50,7 @@ export function Controls() {
   }, [])
 
   const handleSizeChange = React.useCallback((v: number[]) => {
-    app.patchStyleForAllShapes({ size: v[0] })
+    app.patchStyle({ size: v[0] })
   }, [])
 
   const handleStrokeWidthChangeStart = React.useCallback(() => {
@@ -74,7 +74,7 @@ export function Controls() {
   }, [])
 
   const handleStreamlineChange = React.useCallback((v: number[]) => {
-    app.patchStyleForAllShapes({ streamline: v[0] })
+    app.patchStyle({ streamline: v[0] })
   }, [])
 
   const handleSmoothingChangeStart = React.useCallback(() => {
@@ -207,7 +207,7 @@ export function Controls() {
           onPointerDown={handleSizeChangeStart}
           onPointerUp={handleStyleChangeComplete}
         />
-        <Slider
+        {/* <Slider
           name="Thinning"
           value={[style.thinning]}
           min={-0.99}
@@ -217,7 +217,7 @@ export function Controls() {
           onValueChange={handleThinningChange}
           onPointerDown={handleThinningChangeStart}
           onPointerUp={handleStyleChangeComplete}
-        />
+        /> */}
         <Slider
           name="Streamline"
           value={[style.streamline]}
@@ -229,7 +229,7 @@ export function Controls() {
           onPointerDown={handleStreamlineChangeStart}
           onPointerUp={handleStyleChangeComplete}
         />
-        <Slider
+        {/* <Slider
           name="Smoothing"
           value={[style.smoothing]}
           min={0.01}
@@ -239,7 +239,7 @@ export function Controls() {
           onValueChange={handleSmoothingChange}
           onPointerDown={handleSmoothingChangeStart}
           onPointerUp={handleStyleChangeComplete}
-        />
+        /> */}
         {/* <Select
           name="Easing"
           value={style.easing}
@@ -360,14 +360,14 @@ export function Controls() {
           checked={style.isFilled}
           onCheckedChange={handleIsFilledChange}
         /> */}
-        {/* {style.isFilled && (
+        {style.isFilled && (
           <Colors
             name=""
             color={style.fill}
             colors={COLORS}
             onChange={handleFillColorChange}
           />
-        )} */}
+        )}
         {/* <Slider
           name="Stroke"
           value={[style.strokeWidth]}

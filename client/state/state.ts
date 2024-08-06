@@ -10,11 +10,13 @@ import {
 import { Vec } from '@tldraw/vec'
 import { StateManager } from 'rko'
 import { draw, DrawUtil } from './shapes'
-import sample from './sample.json'
 import type { StateSelector } from 'zustand'
 import { copyTextToClipboard, pointInPolygon } from './utils'
 import { EASING_STRINGS } from './easings'
 import { io } from 'socket.io-client';
+
+
+const VecRound = (vec: any) => vec.map(Math.round);
 
 export const shapeUtils: TLShapeUtilsMap<DrawShape> = {
   draw: new DrawUtil(),
@@ -76,7 +78,9 @@ export class AppState extends StateManager<State> {
     startTime: 0,
   }
 
-  socket = null;
+  socket: any = null;
+  savedStyle: any = null;
+  someoneElseDrawing = false;
 
   onReady = () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -85,17 +89,35 @@ export class AppState extends StateManager<State> {
 
     const socket = io('https://fosse.co', { path: "/8201/socket.io" });
 
-    socket.on('shape-complete', (data) => {
+    socket.emit('get-state');
+
+    socket.on('state-from-server', (data) => {
+      if (data?.shapes == null) {
+        return;
+      }
       this.patchState({
         page: {
           shapes: data.shapes,
         },
-        pageState: data.pageState,
+        // pageState: data.pageState,
       })
     })
 
+
+    socket.on('undo', (data) => {
+      this.undo();
+    });
+
+    socket.on('redo', (data) => {
+      this.redo();
+    });
+
     socket.on('pointer-start', (data) => {
-      const { tool, info } = data;
+      this.someoneElseDrawing = true;
+      const { tool, info, style } = data;
+
+      this.savedStyle = JSON.stringify(this.state.appState.style);
+      this.patchStyle(JSON.parse(style));
 
       switch (tool) {
         case 'drawing': {
@@ -145,6 +167,7 @@ export class AppState extends StateManager<State> {
     })
 
     socket.on('pointer-end', (data) => {
+      this.someoneElseDrawing = false;
       switch (data.tool) {
         case 'drawing': {
           this.completeDrawingShape()
@@ -165,6 +188,9 @@ export class AppState extends StateManager<State> {
           break
         }
       }
+
+      // reset to our style:
+      this.patchStyle(JSON.parse(this.savedStyle));
     });
 
     socket.on('erase-all', (data) => {
@@ -209,32 +235,32 @@ export class AppState extends StateManager<State> {
     });
 
 
-    socket.on('patch-style', (data) => {
-      const style = JSON.parse(data.style);
-      this.patchState({
-        appState: {
-          style,
-        },
-      });
-    });
+    // socket.on('patch-style', (data) => {
+    //   const style = JSON.parse(data.style);
+    //   this.patchState({
+    //     appState: {
+    //       style,
+    //     },
+    //   });
+    // });
 
-    socket.on('patch-style-all-shapes', (data) => {
-      const style = JSON.parse(data.style);
-      const { shapes } = this.state.page;
+    // socket.on('patch-style-all-shapes', (data) => {
+    //   const style = JSON.parse(data.style);
+    //   const { shapes } = this.state.page;
 
-      this.patchState({
-        appState: {
-          style,
-        },
-        page: {
-          shapes: {
-            ...Object.fromEntries(
-              Object.keys(shapes).map((id) => [id, { style }])
-            ),
-          },
-        },
-      })
-    })
+    //   this.patchState({
+    //     appState: {
+    //       style,
+    //     },
+    //     page: {
+    //       shapes: {
+    //         ...Object.fromEntries(
+    //           Object.keys(shapes).map((id) => [id, { style }])
+    //         ),
+    //       },
+    //     },
+    //   })
+    // })
 
     this.socket = socket;
   }
@@ -250,11 +276,15 @@ export class AppState extends StateManager<State> {
   }
 
   onPointerDown: TLPointerEventHandler = (info) => {
+    if (this.someoneElseDrawing) {
+      return;
+    }
     const { state } = this
 
     this.socket?.emit('pointer-start', {
       tool: state.appState.tool,
       info: info,
+      style: JSON.stringify(state.appState.style),
     });
 
     switch (state.appState.tool) {
@@ -276,7 +306,14 @@ export class AppState extends StateManager<State> {
   }
 
   onPointerMove: TLPointerEventHandler = (info, event) => {
-    if (event.buttons > 1) return
+
+    if (this.someoneElseDrawing) {
+      return;
+    }
+
+    if (event.buttons > 1) {
+      return;
+    }
 
     const { status, tool } = this.state.appState
 
@@ -312,6 +349,9 @@ export class AppState extends StateManager<State> {
   }
 
   onPointerUp: TLPointerEventHandler = () => {
+    if (this.someoneElseDrawing) {
+      return;
+    }
     const { state } = this
 
     this.socket?.emit('pointer-end', {
@@ -352,7 +392,7 @@ export class AppState extends StateManager<State> {
     return this.patchState({
       pageState: {
         camera: {
-          point: Vec.round(Vec.add(nextPoint, Vec.sub(p1, p0))),
+          point: VecRound(Vec.add(nextPoint, Vec.sub(p1, p0))),
           zoom: nextZoom,
         },
       },
@@ -382,7 +422,7 @@ export class AppState extends StateManager<State> {
 
     if (Vec.isEqual(next, prev)) return this
 
-    const point = Vec.round(next)
+    const point = VecRound(next)
 
     if (state.appState.editingId && state.appState.status === 'drawing') {
       const shape = state.page.shapes[state.appState.editingId]
@@ -473,7 +513,7 @@ export class AppState extends StateManager<State> {
 
     const newPoint = [
       ...Vec.sub(
-        Vec.round(Vec.sub(Vec.div(point, camera.zoom), camera.point)),
+        VecRound(Vec.sub(Vec.div(point, camera.zoom), camera.point)),
         shape.point
       ),
       pressure,
@@ -490,14 +530,14 @@ export class AppState extends StateManager<State> {
     if (offset[0] < 0 || offset[1] < 0) {
       // If so, then we need to move the shape to cancel the offset
       shapePoint = [
-        ...Vec.round(Vec.add(shapePoint, offset)),
+        ...VecRound(Vec.add(shapePoint, offset)),
         shapePoint[2],
         shapePoint[3],
       ]
 
       // And we need to move the shape points to cancel the offset
       shapePoints = shapePoints.map((pt) =>
-        Vec.round(Vec.sub(pt, offset)).concat(pt[2], pt[3])
+        VecRound(Vec.sub(pt, offset)).concat(pt[2], pt[3])
       )
     }
 
@@ -521,9 +561,8 @@ export class AppState extends StateManager<State> {
       ...shape,
     }
 
-    this.socket.emit('shape-complete', {
+    this.socket.emit('set-state', {
       shapes: this.state.page.shapes,
-      pageState: this.state.pageState,
     });
 
     return this.setState({
@@ -862,7 +901,7 @@ export class AppState extends StateManager<State> {
     const { zoom } = pageState.camera
     const mx = (window.innerWidth - bounds.width * zoom) / 2 / zoom
     const my = (window.innerHeight - bounds.height * zoom) / 2 / zoom
-    const point = Vec.round(Vec.add([-bounds.minX, -bounds.minY], [mx, my]))
+    const point = VecRound(Vec.add([-bounds.minX, -bounds.minY], [mx, my]))
 
     return this.patchState({
       pageState: { camera: { point } },
@@ -880,29 +919,29 @@ export class AppState extends StateManager<State> {
       before: {
         appState: currentAppState,
         page: {
-          shapes: {
-            ...Object.fromEntries(
-              Object.keys(shapes).map((id) => [
-                id,
-                {
-                  style: currentAppState.style,
-                },
-              ])
-            ),
-          },
+          // shapes: {
+          //   ...Object.fromEntries(
+          //     Object.keys(shapes).map((id) => [
+          //       id,
+          //       {
+          //         style: currentAppState.style,
+          //       },
+          //     ])
+          //   ),
+          // },
         },
       },
       after: {
         appState: initialAppState,
         page: {
-          shapes: {
-            ...Object.fromEntries(
-              Object.keys(shapes).map((id) => [
-                id,
-                { style: initialAppState.style },
-              ])
-            ),
-          },
+          // shapes: {
+          //   ...Object.fromEntries(
+          //     Object.keys(shapes).map((id) => [
+          //       id,
+          //       { style: initialAppState.style },
+          //     ])
+          //   ),
+          // },
         },
         pageState: {
           camera: {
@@ -1035,6 +1074,23 @@ export class AppState extends StateManager<State> {
         },
       },
     })
+  }
+
+  // // called whenever undo/redo are pressed:
+  // forceState = () => {
+  //   console.log("forcing state!!!!!");
+  //   this.socket.emit('force-state', {
+  //     shapes: this.state.page.shapes,
+  //   });
+  // }
+
+  // called whenever undo/redo are pressed:
+  undo2 = () => {
+    this.socket.emit('undo');
+  }
+
+  redo2 = () => {
+    this.socket.emit('redo');
   }
 
   onPinchStart: TLPinchEventHandler = () => {
