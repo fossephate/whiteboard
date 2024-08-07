@@ -1,10 +1,13 @@
 import * as React from 'react'
 import styles from './panel.module.css'
 import { app, useAppState } from 'state'
-import { GitHubLogoIcon, HamburgerMenuIcon } from '@radix-ui/react-icons'
+import { GitHubLogoIcon, HamburgerMenuIcon, EnterFullScreenIcon, ExitFullScreenIcon } from '@radix-ui/react-icons'
 
-export function Panel() {
+export function Panel(props: any) {
   const tool = useAppState((s) => s.appState.tool)
+  const zoomLevel = useAppState((s) => s.pageState.camera.zoom)
+  const isPenModeEnabled = useAppState((s) => s.appState.isPenModeEnabled)
+
 
   return (
     <>
@@ -22,7 +25,7 @@ export function Panel() {
           <HamburgerMenuIcon height={24} width={24} color="black" />
         </a>
       </div>
-      <div className={[styles.container, styles.top, styles.right].join(' ')}>
+      {!props.isFullscreen && (<div className={[styles.container, styles.top, styles.right].join(' ')}>
         <a
           href="https://github.com/fossephate/whiteboard"
           target="_blank"
@@ -30,33 +33,57 @@ export function Panel() {
         >
           <GitHubLogoIcon height={24} width={24} />
         </a>
-      </div>
-      <div className={[styles.container, styles.bottom, styles.left].join(' ')}>
-        {/* <button
-          onClick={app.selectDrawingTool}
-          data-active={tool === 'drawing'}
-        >
-          Draw
-        </button> */}
-        {/* <button
-          onClick={app.selectErasingTool}
-          data-active={tool === 'erasing'}
-        >
-          Erase
-        </button> */}
-      </div>
-      <div
-        className={[styles.container, styles.bottom, styles.right].join(' ')}
-      >
-        <button onClick={() => {
-          app.undo();
-          app.undo2();
-        }}>Undo</button>
-        <button onClick={() => {
-          app.redo();
-          app.redo2();
-        }}>Redo</button>
-        <button onClick={app.resetDoc}>Clear</button>
+      </div>)}
+      <div className={[styles.container, styles.bottom, styles.right, 'mb-2 mr-2 flex flex-col'].join(' ')}>
+
+        <div className={'flex flex-row gap-2 justify-end'}>
+          <button
+            onClick={app.selectDrawingTool}
+            data-active={tool === 'drawing'}
+          >
+            Draw
+          </button>
+          <button
+            onClick={app.selectErasingTool}
+            data-active={tool === 'erasing'}
+          >
+            Erase
+          </button>
+        </div>
+
+        {/* <div className='flex flex-row gap-2 justify-end'>
+          <button onClick={() => {
+            app.zoomTo1();
+          }}>{(zoomLevel * 100).toPrecision(3)}%</button>
+        </div> */}
+        <div className='flex flex-row gap-2'>
+          <button onClick={() => {
+            // app.undo();
+            app.undo2();
+          }}>Undo</button>
+          <button onClick={() => {
+            // app.redo();
+            app.redo2();
+          }}>Redo</button>
+          <button onClick={app.resetDoc}>Clear</button>
+
+        </div>
+        <div className='flex flex-row gap-2'>
+          <button onClick={() => {
+            app.zoomOut();
+          }}>-</button>
+          <button onClick={() => {
+            app.zoomIn();
+          }}>+</button>
+          {!props.isFullscreen &&
+            (<button onClick={() => {
+              props.setIsFullscreen();
+            }}>
+              <div>
+                {(props.isFullscreen == true) ? <ExitFullScreenIcon height={24} width={24} color="black" /> : <EnterFullScreenIcon height={24} width={24} color="black" />}
+              </div>
+            </button>)}
+        </div>
       </div>
     </>
   )

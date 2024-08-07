@@ -5,16 +5,29 @@ import { Editor } from '../components/editor'
 import { Controls } from '../components/controls'
 import { Panel } from '../components/panel'
 import { useKeyboardShortcuts } from '../hooks'
+import useFullscreenStatus from '../utils/useFullscreenStatus'
 
 interface pageProps { }
 
 const page: FC<pageProps> = ({ }) => {
     useKeyboardShortcuts();
+    
+    const maximizableElement = useRef(null);
+    const [isFullscreen, setIsFullscreen] = useFullscreenStatus(maximizableElement);
+    const handleExitFullscreen = () => document.exitFullscreen();
+
     return (
-        <div className='w-screen pt-12 bg-white flex flex-col justify-center items-center gap-10'>
+        <div ref={maximizableElement} className='w-screen pt-12 bg-white flex flex-col justify-center items-center gap-10'>
             <Editor />
             <Controls />
-            <Panel />
+            <Panel isFullscreen={isFullscreen} onExitFullscreen={handleExitFullscreen} setIsFullscreen={setIsFullscreen}/>
+            {/* <div className="maximizable-actions">
+                {isFullscreen ? (
+                    <button onClick={handleExitFullscreen}>Exit Fullscreen</button>
+                ) : (
+                    <button onClick={setIsFullscreen}>Fullscreen</button>
+                )}
+            </div> */}
         </div>
     )
 }

@@ -41,8 +41,8 @@ export const initialDoc: Doc = {
 export const defaultStyle: DrawStyles = {
   size: 4,
   strokeWidth: 0,
-  thinning: 0.5,
-  streamline: 0.5,
+  thinning: 0.75,
+  streamline: 0.2,
   smoothing: 0.5,
   easing: 'linear',
   taperStart: 0,
@@ -63,6 +63,7 @@ export const initialState: State = {
     editingId: undefined,
     style: defaultStyle,
     isPanelOpen: true,
+    isPenModeEnabled: true,
   },
   ...initialDoc,
 }
@@ -89,18 +90,41 @@ export class AppState extends StateManager<State> {
 
     const socket = io('https://fosse.co', { path: "/8201/socket.io" });
 
+
+
+    // clear whatever local state we had saved, the server is authoratative on boot:
+    this.patchState({
+      page: {
+        shapes: [],
+      },
+    })
+
+    this.patchState({
+      pageState: {
+        camera: {
+          point: [0, 0],
+          zoom: 1,
+        },
+      },
+    })
+
+
     socket.emit('get-state');
 
     socket.on('state-from-server', (data) => {
-      if (data?.shapes == null) {
-        return;
+      if (data == null) {
+        data = [];
       }
       this.patchState({
         page: {
-          shapes: data.shapes,
+          shapes: [],
         },
-        // pageState: data.pageState,
-      })
+      });
+      this.patchState({
+        page: {
+          shapes: data,
+        },
+      });
     })
 
 
@@ -115,79 +139,34 @@ export class AppState extends StateManager<State> {
     socket.on('pointer-start', (data) => {
       this.someoneElseDrawing = true;
       const { tool, info, style } = data;
+      if (style == null) {
+        return;
+      }
 
       this.savedStyle = JSON.stringify(this.state.appState.style);
       this.patchStyle(JSON.parse(style));
-
-      switch (tool) {
-        case 'drawing': {
-          this.createDrawingShape(info.point)
-          break
-        }
-        case 'erasing': {
-          this.setSnapshot()
-          this.patchState({
-            appState: {
-              status: 'erasing',
-            },
-          })
-          this.erase(info.point)
-          break
-        }
-      }
-
+      this.createDrawingShape(info.point)
     })
 
     socket.on('pointer-move', (data) => {
-
       const { status, tool, info } = data;
-      switch (tool) {
-        case 'drawing': {
-          if (status === 'drawing') {
-            const nextShape = this.updateDrawingShape(data.info.point, info.pressure)
-            if (nextShape) {
-              this.patchState({
-                page: {
-                  shapes: {
-                    [nextShape.id]: nextShape,
-                  },
-                },
-              })
-            }
-          }
-          break
-        }
-        case 'erasing': {
-          if (status === 'erasing') {
-            this.erase(info.point)
-          }
-          break
+      if (status === 'drawing') {
+        const nextShape = this.updateDrawingShape(data.info.point, info.pressure)
+        if (nextShape) {
+          this.patchState({
+            page: {
+              shapes: {
+                [nextShape.id]: nextShape,
+              },
+            },
+          })
         }
       }
     })
 
-    socket.on('pointer-end', (data) => {
+    socket.on('pointer-end', async (data) => {
       this.someoneElseDrawing = false;
-      switch (data.tool) {
-        case 'drawing': {
-          this.completeDrawingShape()
-          break
-        }
-        case 'erasing': {
-          this.setState({
-            before: data.snapshot,
-            after: {
-              appState: {
-                status: 'idle',
-              },
-              page: {
-                shapes: data.shapes,
-              },
-            },
-          })
-          break
-        }
-      }
+      this.completeDrawingShape()
 
       // reset to our style:
       this.patchStyle(JSON.parse(this.savedStyle));
@@ -275,11 +254,16 @@ export class AppState extends StateManager<State> {
     return state
   }
 
-  onPointerDown: TLPointerEventHandler = (info) => {
+  onPointerDown: TLPointerEventHandler = (info, event) => {
+    const { state } = this;
     if (this.someoneElseDrawing) {
       return;
     }
-    const { state } = this
+    if (state.appState.isPenModeEnabled) {
+      if  (["mouse", "touch"].indexOf(event.pointerType) > -1) {
+        return;
+      }
+    }
 
     this.socket?.emit('pointer-start', {
       tool: state.appState.tool,
@@ -287,22 +271,7 @@ export class AppState extends StateManager<State> {
       style: JSON.stringify(state.appState.style),
     });
 
-    switch (state.appState.tool) {
-      case 'drawing': {
-        this.createDrawingShape(info.point)
-        break
-      }
-      case 'erasing': {
-        this.setSnapshot()
-        this.patchState({
-          appState: {
-            status: 'erasing',
-          },
-        })
-        this.erase(info.point)
-        break
-      }
-    }
+    this.createDrawingShape(info.point)
   }
 
   onPointerMove: TLPointerEventHandler = (info, event) => {
@@ -323,27 +292,16 @@ export class AppState extends StateManager<State> {
       info: info,
     });
 
-    switch (tool) {
-      case 'drawing': {
-        if (status === 'drawing') {
-          const nextShape = this.updateDrawingShape(info.point, info.pressure)
-          if (nextShape) {
-            this.patchState({
-              page: {
-                shapes: {
-                  [nextShape.id]: nextShape,
-                },
-              },
-            })
-          }
-        }
-        break
-      }
-      case 'erasing': {
-        if (status === 'erasing') {
-          this.erase(info.point)
-        }
-        break
+    if (status === 'drawing') {
+      const nextShape = this.updateDrawingShape(info.point, info.pressure)
+      if (nextShape) {
+        this.patchState({
+          page: {
+            shapes: {
+              [nextShape.id]: nextShape,
+            },
+          },
+        })
       }
     }
   }
@@ -360,26 +318,52 @@ export class AppState extends StateManager<State> {
       shapes: this.state.page.shapes,
     });
 
-    switch (state.appState.tool) {
-      case 'drawing': {
-        this.completeDrawingShape()
-        break
-      }
-      case 'erasing': {
-        this.setState({
-          before: this.snapshot,
-          after: {
-            appState: {
-              status: 'idle',
-            },
-            page: {
-              shapes: this.state.page.shapes,
-            },
-          },
-        })
-        break
-      }
-    }
+    this.completeDrawingShape();
+    this.socket.emit('set-state', { shapes: this.state.page.shapes });
+  }
+
+
+  zoomOut = () => {
+    let newZoom = this.state.pageState.camera.zoom * 0.75;
+    this.patchState({
+      pageState: {
+        camera: {
+          point: [0, 0],
+          zoom: newZoom,
+        },
+      },
+    })
+  }
+
+  zoomIn = () => {
+    let newZoom = this.state.pageState.camera.zoom * (1 + 1 / 3);
+    this.patchState({
+      pageState: {
+        camera: {
+          point: [0, 0],
+          zoom: newZoom,
+        },
+      },
+    })
+  }
+
+  zoomTo1 = () => {
+    this.patchState({
+      pageState: {
+        camera: {
+          point: [0, 0],
+          zoom: 1,
+        },
+      },
+    })
+  }
+
+  togglePenMode = () => {
+    this.patchState({
+      appState: {
+        isPenModeEnabled: !this.state.appState.isPenModeEnabled
+      },
+    })
   }
 
   pinchZoom = (point: number[], delta: number[], zoom: number): this => {
@@ -412,6 +396,7 @@ export class AppState extends StateManager<State> {
   }
 
   onPan: TLWheelEventHandler = (info) => {
+    return;
     const { state } = this
     if (state.appState.status === 'pinching') return this
 
@@ -561,9 +546,7 @@ export class AppState extends StateManager<State> {
       ...shape,
     }
 
-    this.socket.emit('set-state', {
-      shapes: this.state.page.shapes,
-    });
+    // this.socket.emit('set-state', this.state.page.shapes);
 
     return this.setState({
       before: {
@@ -1106,7 +1089,12 @@ export class AppState extends StateManager<State> {
       appState: {
         tool: 'drawing',
       },
-    })
+    });
+    if (this.savedStyle != null) {
+      this.patchStyle(JSON.parse(this.savedStyle));
+    } else {
+      this.patchStyle(defaultStyle);
+    }
   }
 
   selectErasingTool = () => {
@@ -1114,7 +1102,9 @@ export class AppState extends StateManager<State> {
       appState: {
         tool: 'erasing',
       },
-    })
+    });
+    this.savedStyle = JSON.stringify(this.state.appState.style);
+    this.patchStyle({ size: 80, fill: "#F8F9FA", streamline: 1 });
   }
 }
 

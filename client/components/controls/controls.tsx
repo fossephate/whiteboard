@@ -15,6 +15,7 @@ const COLORS = [
   '#673ab7',
   '#00bcd4',
   '#efefef',
+  '#F8F9FA',// bg-color
 ]
 
 const EASINGS = [
@@ -43,7 +44,7 @@ const appStateSelector = (s: State) => s.appState
 
 export function Controls() {
   const appState = useAppState(appStateSelector)
-  const { style } = appState
+  const { style, isPenModeEnabled } = appState
 
   const handleSizeChangeStart = React.useCallback(() => {
     app.setSnapshot()
@@ -188,6 +189,14 @@ export function Controls() {
     app.resetStyle('strokeWidth')
   }, [])
 
+  const handleTogglePenMode = React.useCallback(() => {
+    app.togglePenMode();
+  }, [])
+
+  if (style?.size == null) {
+    return <div></div>;
+  }
+
   return (
     <div
       className={[
@@ -200,7 +209,7 @@ export function Controls() {
           name="Size"
           value={[style.size]}
           min={1}
-          max={30}
+          max={80}
           step={1}
           onDoubleClick={handleResetSize}
           onValueChange={handleSizeChange}
@@ -229,7 +238,7 @@ export function Controls() {
           onPointerDown={handleStreamlineChangeStart}
           onPointerUp={handleStyleChangeComplete}
         />
-        {/* <Slider
+        <Slider
           name="Smoothing"
           value={[style.smoothing]}
           min={0.01}
@@ -239,7 +248,7 @@ export function Controls() {
           onValueChange={handleSmoothingChange}
           onPointerDown={handleSmoothingChangeStart}
           onPointerUp={handleStyleChangeComplete}
-        /> */}
+        />
         {/* <Select
           name="Easing"
           value={style.easing}
@@ -368,6 +377,11 @@ export function Controls() {
             onChange={handleFillColorChange}
           />
         )}
+        <Checkbox
+          name="Pen Mode"
+          checked={isPenModeEnabled}
+          onCheckedChange={handleTogglePenMode}
+        />
         {/* <Slider
           name="Stroke"
           value={[style.strokeWidth]}
