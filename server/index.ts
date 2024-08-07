@@ -10,91 +10,116 @@ const io = new Server(server, {
   },
 })
 
-let states: any[] = [];
-let indexOffset = 0;
+let rooms: any = {};
 
-function getLastState() {
-  if (states.length > 0) {
-    return states[states.length - 1 - indexOffset];
+function getLastState(roomCode: string) {
+  if (!rooms[roomCode]) {
+    rooms[roomCode] = { states: [], indexOffset: 0 };
+  }
+  const room = rooms[roomCode];
+  if (room.states.length > 0) {
+    return room.states[room.states.length - 1 - room.indexOffset];
   }
   return null;
 }
 
-function pushState(data: any) {
-  if (indexOffset == 0) {
-    states.push(data);
+function pushState(roomCode: string, data: any) {
+  if (!rooms[roomCode]) {
+    rooms[roomCode] = { states: [], indexOffset: 0 };
+  }
+  const room = rooms[roomCode];
+  if (room.indexOffset == 0) {
+    room.states.push(data);
   } else {
-    // When indexOffset > 0, we need to remove the future states
-    states = states.slice(0, states.length - indexOffset);
-    states.push(data);
-    indexOffset = 0;
+    room.states = room.states.slice(0, room.states.length - room.indexOffset);
+    room.states.push(data);
+    room.indexOffset = 0;
   }
 
-  if (states.length > 50) {
-    states.shift();
+  if (room.states.length > 50) {
+    room.states.shift();
   }
 }
 
 io.on('connection', (socket) => {
+  let currentRoom: any = null;
 
-  socket.on('get-state', (data) => {
-    socket.emit('state-from-server', getLastState());
+  socket.on('join-room', (roomCode) => {
+    if (currentRoom) {
+      socket.leave(currentRoom);
+    }
+    socket.join(roomCode);
+    currentRoom = roomCode;
+    socket.emit('state-from-server', getLastState(roomCode));
+  });
+
+  socket.on('get-state', () => {
+    if (currentRoom) {
+      socket.emit('state-from-server', getLastState(currentRoom));
+    }
   });
 
   socket.on('pointer-start', (data) => {
-    socket.broadcast.emit('pointer-start', data);
+    socket.to(currentRoom).emit('pointer-start', data);
   });
 
   socket.on('pointer-move', (data) => {
-    socket.broadcast.emit('pointer-move', data);
+    socket.to(currentRoom).emit('pointer-move', data);
   });
 
   socket.on('pointer-end', (data) => {
-    socket.broadcast.emit('pointer-end', data);
+    socket.to(currentRoom).emit('pointer-end', data);
   });
 
-
-  socket.on('undo', (data) => {
-    if (indexOffset < states.length) {
-      indexOffset++;
-    }
-    io.emit('state-from-server', getLastState());
-  });
-
-  socket.on('redo', (data) => {
-    if (indexOffset > 0) {
-      indexOffset--;
-      io.emit('state-from-server', getLastState());
+  socket.on('undo', () => {
+    if (currentRoom && rooms[currentRoom]) {
+      const room = rooms[currentRoom];
+      if (room.indexOffset < room.states.length) {
+        room.indexOffset++;
+      }
+      io.to(currentRoom).emit('state-from-server', getLastState(currentRoom));
     }
   });
 
+  socket.on('redo', () => {
+    if (currentRoom && rooms[currentRoom]) {
+      const room = rooms[currentRoom];
+      if (room.indexOffset > 0) {
+        room.indexOffset--;
+        io.to(currentRoom).emit('state-from-server', getLastState(currentRoom));
+      }
+    }
+  });
 
   socket.on('set-state', (data) => {
-    pushState(data.shapes);
+    if (currentRoom) {
+      pushState(currentRoom, data.shapes);
+    }
   });
-
-  // force update other clients:
-  // socket.on('force-state', (data) => {
-  //   lastState = data;
-  //   states.push(data);
-  //   socket.broadcast.emit('state-from-server', data);
-  // });
 
   socket.on('erase-all', (data) => {
-    socket.broadcast.emit('erase-all', data);
+    socket.to(currentRoom).emit('erase-all', data);
   });
 
-  socket.on('reset-doc', (data) => {
-    pushState(null);
-    socket.broadcast.emit('state-from-server', null);
+  socket.on('reset-doc', () => {
+    if (currentRoom) {
+      pushState(currentRoom, null);
+      io.to(currentRoom).emit('state-from-server', null);
+    }
   });
 
   socket.on('patch-style', (data) => {
-    socket.broadcast.emit('patch-style', data);
+    socket.to(currentRoom).emit('patch-style', data);
   });
 
   socket.on('patch-style-all-shapes', (data) => {
-    socket.broadcast.emit('patch-style-all-shapes', data);
+    socket.to(currentRoom).emit('patch-style-all-shapes', data);
+  });
+
+  socket.on('disconnect', () => {
+    if (currentRoom) {
+      socket.leave(currentRoom);
+    }
   });
 })
 

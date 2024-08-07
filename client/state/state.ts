@@ -63,7 +63,7 @@ export const initialState: State = {
     editingId: undefined,
     style: defaultStyle,
     isPanelOpen: true,
-    isPenModeEnabled: true,
+    isPenModeEnabled: false,
   },
   ...initialDoc,
 }
@@ -82,6 +82,15 @@ export class AppState extends StateManager<State> {
   socket: any = null;
   savedStyle: any = null;
   someoneElseDrawing = false;
+  roomCode: string = 'default';
+
+  constructor(initialState: State) {
+    super(initialState, 'fridge-board', 1, (p, n) => n);
+
+    // Get room code from URL
+    const pathParts = window.location.pathname.split('/');
+    this.roomCode = pathParts[pathParts.length - 1];
+  }
 
   onReady = () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -89,8 +98,7 @@ export class AppState extends StateManager<State> {
     window['app'] = this;
 
     const socket = io('https://fosse.co', { path: "/8201/socket.io" });
-
-
+    socket.emit('join-room', this.roomCode);
 
     // clear whatever local state we had saved, the server is authoratative on boot:
     this.patchState({
@@ -138,20 +146,20 @@ export class AppState extends StateManager<State> {
 
     socket.on('pointer-start', (data) => {
       this.someoneElseDrawing = true;
-      const { tool, info, style } = data;
+      const { tool, info, style, camera } = data;
       if (style == null) {
         return;
       }
 
       this.savedStyle = JSON.stringify(this.state.appState.style);
       this.patchStyle(JSON.parse(style));
-      this.createDrawingShape(info.point)
+      this.createDrawingShape(info.point, camera)
     })
 
     socket.on('pointer-move', (data) => {
-      const { status, tool, info } = data;
+      const { status, tool, info, camera } = data;
       if (status === 'drawing') {
-        const nextShape = this.updateDrawingShape(data.info.point, info.pressure)
+        const nextShape = this.updateDrawingShape(data.info.point, info.pressure, camera)
         if (nextShape) {
           this.patchState({
             page: {
@@ -260,7 +268,7 @@ export class AppState extends StateManager<State> {
       return;
     }
     if (state.appState.isPenModeEnabled) {
-      if  (["mouse", "touch"].indexOf(event.pointerType) > -1) {
+      if (["mouse", "touch"].indexOf(event.pointerType) > -1) {
         return;
       }
     }
@@ -269,9 +277,10 @@ export class AppState extends StateManager<State> {
       tool: state.appState.tool,
       info: info,
       style: JSON.stringify(state.appState.style),
+      camera: state.pageState.camera,
     });
 
-    this.createDrawingShape(info.point)
+    this.createDrawingShape(info.point, state.pageState.camera)
   }
 
   onPointerMove: TLPointerEventHandler = (info, event) => {
@@ -285,15 +294,17 @@ export class AppState extends StateManager<State> {
     }
 
     const { status, tool } = this.state.appState
+    const { camera } = this.state.pageState
 
     this.socket?.emit('pointer-move', {
       status: status,
       tool: tool,
       info: info,
+      camera: camera,
     });
 
     if (status === 'drawing') {
-      const nextShape = this.updateDrawingShape(info.point, info.pressure)
+      const nextShape = this.updateDrawingShape(info.point, info.pressure, camera)
       if (nextShape) {
         this.patchState({
           page: {
@@ -396,7 +407,6 @@ export class AppState extends StateManager<State> {
   }
 
   onPan: TLWheelEventHandler = (info) => {
-    return;
     const { state } = this
     if (state.appState.status === 'pinching') return this
 
@@ -411,7 +421,7 @@ export class AppState extends StateManager<State> {
 
     if (state.appState.editingId && state.appState.status === 'drawing') {
       const shape = state.page.shapes[state.appState.editingId]
-      const nextShape = this.updateDrawingShape(info.point, info.pressure)
+      const nextShape = this.updateDrawingShape(info.point, info.pressure, state.pageState.camera)
 
       this.patchState({
         pageState: {
@@ -457,10 +467,8 @@ export class AppState extends StateManager<State> {
     })
   }
 
-  createDrawingShape = (point: number[]) => {
+  createDrawingShape = (point: number[], camera: any) => {
     const { state } = this
-
-    const camera = state.pageState.camera
 
     const pt = Vec.sub(Vec.div(point, camera.zoom), camera.point)
 
@@ -487,14 +495,12 @@ export class AppState extends StateManager<State> {
     })
   }
 
-  updateDrawingShape = (point: number[], pressure: number) => {
+  updateDrawingShape = (point: number[], pressure: number, camera: any) => {
     const { state, currentStroke } = this
     if (state.appState.status !== 'drawing') return
     if (!state.appState.editingId) return
 
     const shape = state.page.shapes[state.appState.editingId]
-
-    const camera = state.pageState.camera
 
     const newPoint = [
       ...Vec.sub(
@@ -1104,16 +1110,11 @@ export class AppState extends StateManager<State> {
       },
     });
     this.savedStyle = JSON.stringify(this.state.appState.style);
-    this.patchStyle({ size: 80, fill: "#F8F9FA", streamline: 1 });
+    this.patchStyle({ size: 80, fill: "#F8F9FA" });
   }
 }
 
-export const app = new AppState(
-  initialState,
-  'perfect-freehand',
-  1,
-  (p, n) => n
-)
+export const app = new AppState(initialState);
 
 export function useAppState(): State
 export function useAppState<K>(selector: StateSelector<State, K>): K

@@ -83,7 +83,7 @@ export function Controls() {
   }, [])
 
   const handleSmoothingChange = React.useCallback((v: number[]) => {
-    app.patchStyleForAllShapes({ smoothing: v[0] })
+    app.patchStyle({ smoothing: v[0] })
   }, [])
 
   const handleEasingChange = React.useCallback((easing: string) => {
