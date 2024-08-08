@@ -79,26 +79,22 @@ export class AppState extends StateManager<State> {
     startTime: 0,
   }
 
+
   socket: any = null;
   savedStyle: any = null;
-  someoneElseDrawing = false;
-  roomCode: string = 'default';
+  someoneElseDrawing: boolean = false;
 
   constructor(initialState: State) {
     super(initialState, 'fridge-board', 1, (p, n) => n);
-
-    // Get room code from URL
-    const pathParts = window.location.pathname.split('/');
-    this.roomCode = pathParts[pathParts.length - 1];
   }
 
-  onReady = () => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    window['app'] = this;
+  setRoomCode = (roomCode: string) => {
+    if (this.socket != null) {
+      this.socket?.close();
+    }
 
     const socket = io('https://fosse.co', { path: "/8201/socket.io" });
-    socket.emit('join-room', this.roomCode);
+    socket.emit('join-room', roomCode);
 
     // clear whatever local state we had saved, the server is authoratative on boot:
     this.patchState({
@@ -180,21 +176,6 @@ export class AppState extends StateManager<State> {
       this.patchStyle(JSON.parse(this.savedStyle));
     });
 
-    socket.on('erase-all', (data) => {
-      this.setState({
-        before: {
-          page: {
-            shapes,
-          },
-        },
-        after: {
-          page: {
-            shapes: {},
-          },
-        },
-      });
-    })
-
     socket.on('reset-doc', (data) => {
       const { shapes } = this.state.page;
       this.setState({
@@ -250,6 +231,28 @@ export class AppState extends StateManager<State> {
     // })
 
     this.socket = socket;
+  }
+
+  onReady = () => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    window['app'] = this;
+
+    // clear whatever local state we had saved, the server is authoratative on boot:
+    this.patchState({
+      page: {
+        shapes: [],
+      },
+    })
+
+    this.patchState({
+      pageState: {
+        camera: {
+          point: [0, 0],
+          zoom: 1,
+        },
+      },
+    })
   }
 
   cleanup = (state: State) => {
@@ -831,42 +834,42 @@ export class AppState extends StateManager<State> {
     })
   }
 
-  resetStyle = (prop: keyof DrawStyles) => {
-    const { shapes } = this.state.page
-    const { state } = this
+  // resetStyle = (prop: keyof DrawStyles) => {
+  //   const { shapes } = this.state.page
+  //   const { state } = this
 
-    const initialStyle = initialState.appState.style[prop]
+  //   const initialStyle = initialState.appState.style[prop]
 
-    return this.setState({
-      before: {
-        appState: state.appState,
-        page: {
-          shapes: {
-            ...Object.fromEntries(
-              Object.entries(shapes).map(([id, shape]) => [
-                id,
-                {
-                  style: { [prop]: shape.style[prop] },
-                },
-              ])
-            ),
-          },
-        },
-      },
-      after: {
-        appState: {
-          style: { [prop]: initialStyle },
-        },
-        page: {
-          shapes: {
-            ...Object.fromEntries(
-              Object.keys(shapes).map((id) => [id, { [prop]: initialStyle }])
-            ),
-          },
-        },
-      },
-    })
-  }
+  //   return this.setState({
+  //     before: {
+  //       appState: state.appState,
+  //       page: {
+  //         shapes: {
+  //           ...Object.fromEntries(
+  //             Object.entries(shapes).map(([id, shape]) => [
+  //               id,
+  //               {
+  //                 style: { [prop]: shape.style[prop] },
+  //               },
+  //             ])
+  //           ),
+  //         },
+  //       },
+  //     },
+  //     after: {
+  //       appState: {
+  //         style: { [prop]: initialStyle },
+  //       },
+  //       page: {
+  //         shapes: {
+  //           ...Object.fromEntries(
+  //             Object.keys(shapes).map((id) => [id, { [prop]: initialStyle }])
+  //           ),
+  //         },
+  //       },
+  //     },
+  //   })
+  // }
 
   zoomToContent = (): this => {
     const shapes = Object.values(this.state.page.shapes)
@@ -970,7 +973,7 @@ export class AppState extends StateManager<State> {
 
     const padding = 40
 
-    shapes.forEach((shape) => {
+    shapes.forEach((shape: any) => {
       const fillElm = document.getElementById('path_' + shape.id)
 
       if (!fillElm) return

@@ -50,13 +50,7 @@ export function Panel(props: any) {
             Erase
           </button>
         </div>
-
-        {/* <div className='flex flex-row gap-2 justify-end'>
-          <button onClick={() => {
-            app.zoomTo1();
-          }}>{(zoomLevel * 100).toPrecision(3)}%</button>
-        </div> */}
-        <div className='flex flex-row gap-2'>
+        <div className='flex flex-row gap-2 justify-end'>
           <button onClick={() => {
             // app.undo();
             app.undo2();
@@ -65,24 +59,31 @@ export function Panel(props: any) {
             // app.redo();
             app.redo2();
           }}>Redo</button>
-          <button onClick={app.resetDoc}>Clear</button>
-
         </div>
-        <div className='flex flex-row gap-2'>
+
+        <div className='flex flex-row gap-2 justify-end'>
+          <button onClick={() => {
+            app.zoomTo1();
+          }}>{(zoomLevel * 100).toPrecision(3)}%</button>
+          <button onClick={app.resetDoc}>Clear</button>
+        </div>
+
+        <div className='flex flex-row gap-2 justify-end'>
           <button onClick={() => {
             app.zoomOut();
           }}>-</button>
           <button onClick={() => {
             app.zoomIn();
           }}>+</button>
-          {!props.isFullscreen &&
-            (<button onClick={() => {
-              props.setIsFullscreen();
-            }}>
-              <div>
-                {(props.isFullscreen == true) ? <ExitFullScreenIcon height={24} width={24} color="black" /> : <EnterFullScreenIcon height={24} width={24} color="black" />}
-              </div>
-            </button>)}
+        </div>
+        <div className='flex flex-row gap-2 justify-end'>
+          <button onClick={() => {
+            props.setIsFullscreen();
+          }}>
+            <div>
+              {(props.isFullscreen == true) ? <ExitFullScreenIcon height={24} width={24} color="black" /> : <EnterFullScreenIcon height={24} width={24} color="black" />}
+            </div>
+          </button>
         </div>
       </div>
     </>
