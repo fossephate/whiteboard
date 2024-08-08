@@ -49,6 +49,9 @@ export function Panel(props: any) {
           >
             Erase
           </button>
+          <button onClick={app.selectPanningTool} data-active={tool === 'panning'}>
+            Pan
+          </button>
         </div>
         <div className='flex flex-row gap-2 justify-end'>
           <button onClick={() => {

@@ -275,6 +275,14 @@ export class AppState extends StateManager<State> {
         return;
       }
     }
+    if (state.appState.tool === 'panning') {
+      this.patchState({
+        appState: {
+          status: 'panning',
+        },
+      });
+      return;
+    }
 
     this.socket?.emit('pointer-start', {
       tool: state.appState.tool,
@@ -297,7 +305,19 @@ export class AppState extends StateManager<State> {
     }
 
     const { status, tool } = this.state.appState
-    const { camera } = this.state.pageState
+    const { camera } = this.state.pageState;
+
+    if (tool === 'panning' && status === 'panning') {
+      const delta = Vec.div(info.delta, camera.zoom);
+      this.patchState({
+        pageState: {
+          camera: {
+            point: Vec.add(camera.point, delta),
+          },
+        },
+      });
+      return;
+    }
 
     this.socket?.emit('pointer-move', {
       status: status,
@@ -321,10 +341,19 @@ export class AppState extends StateManager<State> {
   }
 
   onPointerUp: TLPointerEventHandler = () => {
+    const { state } = this;
     if (this.someoneElseDrawing) {
       return;
     }
-    const { state } = this
+
+    if (state.appState.tool === 'panning') {
+      this.patchState({
+        appState: {
+          status: 'idle',
+        },
+      });
+      return;
+    }
 
     this.socket?.emit('pointer-end', {
       tool: state.appState.tool,
@@ -381,6 +410,7 @@ export class AppState extends StateManager<State> {
   }
 
   pinchZoom = (point: number[], delta: number[], zoom: number): this => {
+    return;
     const { camera } = this.state.pageState
     const nextPoint = Vec.sub(camera.point, Vec.div(delta, camera.zoom))
     const nextZoom = zoom
@@ -398,18 +428,21 @@ export class AppState extends StateManager<State> {
   }
 
   onPinchEnd: TLPinchEventHandler = () => {
+    return;
     this.patchState({
       appState: { status: 'idle' },
     })
   }
 
   onPinch: TLPinchEventHandler = (info, e) => {
+    return;
     if (this.state.appState.status !== 'pinching') return
     this.pinchZoom(info.point, info.delta, info.delta[2])
     this.onPointerMove?.(info, e as unknown as React.PointerEvent)
   }
 
   onPan: TLWheelEventHandler = (info) => {
+    return;
     const { state } = this
     if (state.appState.status === 'pinching') return this
 
@@ -1114,6 +1147,14 @@ export class AppState extends StateManager<State> {
     });
     this.savedStyle = JSON.stringify(this.state.appState.style);
     this.patchStyle({ size: 80, fill: "#F8F9FA" });
+  }
+
+  selectPanningTool = () => {
+    this.patchState({
+      appState: {
+        tool: 'panning',
+      },
+    });
   }
 }
 

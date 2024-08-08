@@ -27,6 +27,9 @@ function pushState(roomCode: string, data: any) {
   if (!rooms[roomCode]) {
     rooms[roomCode] = { states: [], indexOffset: 0 };
   }
+  if (getLastState(roomCode) == null && data == null) {
+    return;
+  }
   const room = rooms[roomCode];
   if (room.indexOffset == 0) {
     room.states.push(data);
