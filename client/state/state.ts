@@ -96,18 +96,21 @@ export class AppState extends StateManager<State> {
     const socket = io('https://fosse.co', { path: "/8201/socket.io" });
     socket.emit('join-room', roomCode);
 
+    let zoom = 1;
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    if (isMobile) {
+      zoom = 0.421875;
+    }
+
     // clear whatever local state we had saved, the server is authoratative on boot:
     this.patchState({
       page: {
         shapes: [],
       },
-    })
-
-    this.patchState({
       pageState: {
         camera: {
           point: [0, 0],
-          zoom: 1,
+          zoom: zoom,
         },
       },
     })
@@ -178,28 +181,15 @@ export class AppState extends StateManager<State> {
 
     socket.on('reset-doc', (data) => {
       const { shapes } = this.state.page;
-      this.setState({
-        before: {
-          page: {
-            shapes,
+      this.patchState({
+        page: {
+          shapes: {
+            ...Object.fromEntries(
+              Object.keys(shapes).map((key) => [key, undefined])
+            ),
           },
         },
-        after: {
-          page: {
-            shapes: {
-              ...Object.fromEntries(
-                Object.keys(shapes).map((key) => [key, undefined])
-              ),
-            },
-          },
-          pageState: {
-            camera: {
-              point: [0, 0],
-              zoom: 1,
-            },
-          },
-        },
-      })
+      });
     });
 
 
@@ -237,22 +227,6 @@ export class AppState extends StateManager<State> {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     window['app'] = this;
-
-    // clear whatever local state we had saved, the server is authoratative on boot:
-    this.patchState({
-      page: {
-        shapes: [],
-      },
-    })
-
-    this.patchState({
-      pageState: {
-        camera: {
-          point: [0, 0],
-          zoom: 1,
-        },
-      },
-    })
   }
 
   cleanup = (state: State) => {
@@ -590,30 +564,42 @@ export class AppState extends StateManager<State> {
 
     // this.socket.emit('set-state', this.state.page.shapes);
 
-    return this.setState({
-      before: {
-        appState: {
-          status: 'idle',
-          editingId: undefined,
-        },
-        page: {
-          shapes: {
-            [shape.id]: undefined,
-          },
+    // return this.setState({
+    //   before: {
+    //     appState: {
+    //       status: 'idle',
+    //       editingId: undefined,
+    //     },
+    //     page: {
+    //       shapes: {
+    //         [shape.id]: undefined,
+    //       },
+    //     },
+    //   },
+    //   after: {
+    //     appState: {
+    //       status: 'idle',
+    //       editingId: undefined,
+    //     },
+    //     page: {
+    //       shapes: {
+    //         [shape.id]: shape,
+    //       },
+    //     },
+    //   },
+    // })
+
+    return this.patchState({
+      appState: {
+        status: 'idle',
+        editingId: undefined,
+      },
+      page: {
+        shapes: {
+          [shape.id]: shape,
         },
       },
-      after: {
-        appState: {
-          status: 'idle',
-          editingId: undefined,
-        },
-        page: {
-          shapes: {
-            [shape.id]: shape,
-          },
-        },
-      },
-    })
+    });
   }
 
   centerShape = (id: string) => {
@@ -740,27 +726,7 @@ export class AppState extends StateManager<State> {
     })
   }
 
-  eraseAll = () => {
-    const { state } = this
-    const { shapes } = state.page
-
-    if (state.appState.editingId) return this // Don't erase while drawing
-
-    this.socket.emit('erase-all');
-
-    return this.setState({
-      before: {
-        page: {
-          shapes,
-        },
-      },
-      after: {
-        page: {
-          shapes: {},
-        },
-      },
-    })
-  }
+  eraseAll = () => { }
 
   startStyleUpdate = () => {
     return this.setSnapshot()
@@ -800,71 +766,10 @@ export class AppState extends StateManager<State> {
     })
   }
 
-  finishStyleUpdate = () => {
-    // const { state, snapshot } = this
-    // const { shapes } = state.page
-
-    // return this.setState({
-    //   before: snapshot,
-    //   after: {
-    //     appState: {
-    //       style: state.appState.style,
-    //     },
-    //     page: {
-    //       shapes: {
-    //         ...Object.fromEntries(
-    //           Object.entries(shapes).map(([id, { style }]) => [id, { style }])
-    //         ),
-    //       },
-    //     },
-    //   },
-    // })
-  }
+  finishStyleUpdate = () => { }
 
   setNextStyleForAllShapes = (style: Partial<DrawStyles>) => {
-    const { shapes } = this.state.page
-
-    return this.setState({
-      before: {
-        appState: {
-          style: Object.fromEntries(
-            Object.keys(style).map((key) => [
-              key,
-              this.state.appState.style[key as keyof DrawStyles],
-            ])
-          ),
-        },
-        page: {
-          shapes: {
-            ...Object.fromEntries(
-              Object.entries(shapes).map(([id, shape]) => [
-                id,
-                {
-                  style: Object.fromEntries(
-                    Object.keys(style).map((key) => [
-                      key,
-                      shape.style[key as keyof DrawStyles],
-                    ])
-                  ),
-                },
-              ])
-            ),
-          },
-        },
-      },
-      after: {
-        appState: {
-          style,
-        },
-        page: {
-          shapes: {
-            ...Object.fromEntries(
-              Object.keys(shapes).map((id) => [id, { style }])
-            ),
-          },
-        },
-      },
-    })
+    return;
   }
 
   // resetStyle = (prop: keyof DrawStyles) => {
@@ -943,38 +848,11 @@ export class AppState extends StateManager<State> {
     return this.setState({
       before: {
         appState: currentAppState,
-        page: {
-          // shapes: {
-          //   ...Object.fromEntries(
-          //     Object.keys(shapes).map((id) => [
-          //       id,
-          //       {
-          //         style: currentAppState.style,
-          //       },
-          //     ])
-          //   ),
-          // },
-        },
       },
       after: {
         appState: initialAppState,
-        page: {
-          // shapes: {
-          //   ...Object.fromEntries(
-          //     Object.keys(shapes).map((id) => [
-          //       id,
-          //       { style: initialAppState.style },
-          //     ])
-          //   ),
-          // },
-        },
-        pageState: {
-          camera: {
-            zoom: 1,
-          },
-        },
       },
-    })
+    });
   }
 
   copyStyles = () => {
@@ -1077,25 +955,12 @@ export class AppState extends StateManager<State> {
 
     this.socket.emit('reset-doc');
 
-    return this.setState({
-      before: {
-        page: {
-          shapes,
-        },
-      },
-      after: {
-        page: {
-          shapes: {
-            ...Object.fromEntries(
-              Object.keys(shapes).map((key) => [key, undefined])
-            ),
-          },
-        },
-        pageState: {
-          camera: {
-            point: [0, 0],
-            zoom: 1,
-          },
+    return this.patchState({
+      page: {
+        shapes: {
+          ...Object.fromEntries(
+            Object.keys(shapes).map((key) => [key, undefined])
+          ),
         },
       },
     })
