@@ -376,11 +376,22 @@ export class AppState extends StateManager<State> {
   }
 
   togglePenMode = () => {
-    this.patchState({
-      appState: {
-        isPenModeEnabled: !this.state.appState.isPenModeEnabled
+
+    const currentAppState = this.state.appState
+    const initialAppState = initialState.appState
+    this.setState({
+      before: {
+        appState: initialState,
       },
-    })
+      after: {
+        appState: { ...initialState, isPenModeEnabled: !this.state.appState.isPenModeEnabled, },
+      },
+    });
+    // this.patchState({
+    //   appState: {
+    //     isPenModeEnabled: !this.state.appState.isPenModeEnabled
+    //   },
+    // })
   }
 
   pinchZoom = (point: number[], delta: number[], zoom: number): this => {
@@ -984,6 +995,7 @@ export class AppState extends StateManager<State> {
   }
 
   onPinchStart: TLPinchEventHandler = () => {
+    return;
     if (this.state.appState.status !== 'idle') return
 
     this.patchState({
@@ -992,9 +1004,9 @@ export class AppState extends StateManager<State> {
   }
 
   selectDrawingTool = () => {
-    
+
     // reset the style if coming from the eraser:
-    if (this.state.appState.tool == 'eraser') {
+    if (this.state.appState.tool == 'erasing') {
       if (this.savedStyle != null) {
         this.patchStyle(JSON.parse(this.savedStyle));
       } else {
@@ -1020,6 +1032,7 @@ export class AppState extends StateManager<State> {
   }
 
   selectPanningTool = () => {
+    this.savedStyle = JSON.stringify(this.state.appState.style);
     this.patchState({
       appState: {
         tool: 'panning',
