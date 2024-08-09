@@ -992,16 +992,21 @@ export class AppState extends StateManager<State> {
   }
 
   selectDrawingTool = () => {
+    
+    // reset the style if coming from the eraser:
+    if (this.state.appState.tool == 'eraser') {
+      if (this.savedStyle != null) {
+        this.patchStyle(JSON.parse(this.savedStyle));
+      } else {
+        this.patchStyle(defaultStyle);
+      }
+    }
+
     this.patchState({
       appState: {
         tool: 'drawing',
       },
     });
-    if (this.savedStyle != null) {
-      this.patchStyle(JSON.parse(this.savedStyle));
-    } else {
-      this.patchStyle(defaultStyle);
-    }
   }
 
   selectErasingTool = () => {
