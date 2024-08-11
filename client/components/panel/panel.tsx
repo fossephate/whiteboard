@@ -8,7 +8,8 @@ export function Panel(props: any) {
   const zoomLevel = useAppState((s) => s.pageState.camera.zoom)
   const isPenModeEnabled = useAppState((s) => s.appState.isPenModeEnabled)
   const status = useAppState((s) => s.appState.status);
-  const roomCode = useAppState((s) => s.appState.roomCode);
+  const roomCode = window.location.pathname.split('/').pop();
+
 
   
 
@@ -20,7 +21,7 @@ export function Panel(props: any) {
           target="_blank"
           rel="noopener nofollow"
         >
-          fridge-board {status} {roomCode}
+          fridge-board #{roomCode}
         </a>
       </div>
       <div className={[styles.container, styles.top, styles.left].join(' ')}>
