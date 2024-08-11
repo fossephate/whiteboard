@@ -288,7 +288,8 @@ export class AppState extends StateManager<State> {
     }
 
     // don't allow drawing if we're potentially disconnected:
-    if (pingCount > 4000) {
+    const connected = this.socket?.connected ?? false;
+    if (pingCount > 4000 || !connected) {
       return;
     }
 
@@ -405,7 +406,7 @@ export class AppState extends StateManager<State> {
     });
 
     this.completeDrawingShape();
-    this.socket.emit('set-state', { shapes: this.state.page.shapes });
+    this.socket?.emit('set-state', { shapes: this.state.page.shapes });
   }
 
 
@@ -677,33 +678,6 @@ export class AppState extends StateManager<State> {
       ...shape,
     }
 
-    // this.socket.emit('set-state', this.state.page.shapes);
-
-    // return this.setState({
-    //   before: {
-    //     appState: {
-    //       status: 'idle',
-    //       editingId: undefined,
-    //     },
-    //     page: {
-    //       shapes: {
-    //         [shape.id]: undefined,
-    //       },
-    //     },
-    //   },
-    //   after: {
-    //     appState: {
-    //       status: 'idle',
-    //       editingId: undefined,
-    //     },
-    //     page: {
-    //       shapes: {
-    //         [shape.id]: shape,
-    //       },
-    //     },
-    //   },
-    // })
-
     return this.patchState({
       appState: {
         status: 'idle',
@@ -850,7 +824,7 @@ export class AppState extends StateManager<State> {
   patchStyleForAllShapes = (style: Partial<DrawStyles>) => {
     const { shapes } = this.state.page
 
-    this.socket.emit('patch-style-all-shapes', {
+    this.socket?.emit('patch-style-all-shapes', {
       style: JSON.stringify(style),
     });
 
@@ -870,7 +844,7 @@ export class AppState extends StateManager<State> {
 
   patchStyle = (style: Partial<DrawStyles>) => {
 
-    this.socket.emit('patch-style', {
+    this.socket?.emit('patch-style', {
       style: JSON.stringify(style),
     });
 
@@ -1068,7 +1042,7 @@ export class AppState extends StateManager<State> {
   resetDoc = () => {
     const { shapes } = this.state.page
 
-    this.socket.emit('reset-doc');
+    this.socket?.emit('reset-doc');
 
     return this.patchState({
       page: {
@@ -1081,25 +1055,17 @@ export class AppState extends StateManager<State> {
     })
   }
 
-  // // called whenever undo/redo are pressed:
-  // forceState = () => {
-  //   console.log("forcing state!!!!!");
-  //   this.socket.emit('force-state', {
-  //     shapes: this.state.page.shapes,
-  //   });
-  // }
-
   // called whenever undo/redo are pressed:
   undo2 = () => {
-    this.socket.emit('undo');
-  }
-
-  resetToServerState = () => {
-    this.socket.emit('get-state');
+    this.socket?.emit('undo');
   }
 
   redo2 = () => {
-    this.socket.emit('redo');
+    this.socket?.emit('redo');
+  }
+
+  resetToServerState = () => {
+    this.socket?.emit('get-state');
   }
 
   onPinchStart: TLPinchEventHandler = () => {
@@ -1164,8 +1130,6 @@ export class AppState extends StateManager<State> {
   }
 }
 
-
-// class DummyAppState extends StateManager<State> {
 class DummyAppState {
 
   shapeUtils: TLShapeUtilsMap<DrawShape> = {};

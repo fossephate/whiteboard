@@ -22,7 +22,7 @@ export function Panel(props: any) {
           target="_blank"
           rel="noopener nofollow"
         >
-          fridge-board #{roomCode}
+          fridge-board #{roomCode} {pingCount}
         </a>
       </div>
       <div className={[styles.container, styles.top, styles.left].join(' ')}>

@@ -97,7 +97,7 @@ setInterval(() => {
 
 setInterval(() => {
   saveRoomState();
-}, 1000 * 60);
+}, 1000 * 30);
 
 io.on('connection', (socket) => {
   let currentRoom: any = null;
