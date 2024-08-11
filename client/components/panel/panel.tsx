@@ -8,16 +8,17 @@ export function Panel(props: any) {
   const zoomLevel = useAppState((s) => s.pageState.camera.zoom)
   const isPenModeEnabled = useAppState((s) => s.appState.isPenModeEnabled)
   const status = useAppState((s) => s.appState.status);
+  const pingCount = useAppState((s) => s.appState.pingCount);
   const roomCode = window.location.pathname.split('/').pop();
+  const isFullscreenEnabled = useAppState((s) => s.appState.isFullscreenEnabled);
 
-
-  
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
   return (
     <>
       <div className={[styles.top, styles.center].join(' ')}>
         <a
-          href="https://github.com/fossephate/whiteboard"
+          href="https://github.com/fossephate/fridge-board"
           target="_blank"
           rel="noopener nofollow"
         >
@@ -31,7 +32,7 @@ export function Panel(props: any) {
       </div>
       {!props.isFullscreen && (<div className={[styles.container, styles.top, styles.right].join(' ')}>
         <a
-          href="https://github.com/fossephate/whiteboard"
+          href="https://github.com/fossephate/fridge-board"
           target="_blank"
           rel="noopener nofollow"
         >
@@ -62,11 +63,9 @@ export function Panel(props: any) {
         </div>
         <div className='flex flex-row gap-2 justify-end'>
           <button onClick={() => {
-            // app.undo();
             app.undo2();
           }}>Undo</button>
           <button onClick={() => {
-            // app.redo();
             app.redo2();
           }}>Redo</button>
         </div>
@@ -86,15 +85,22 @@ export function Panel(props: any) {
             app.zoomIn();
           }}>+</button>
         </div>
-        <div className='flex flex-row gap-2 justify-end'>
-          <button onClick={() => {
-            props.setIsFullscreen();
-          }}>
-            <div>
-              {(props.isFullscreen == true) ? <ExitFullScreenIcon height={24} width={24} color="black" /> : <EnterFullScreenIcon height={24} width={24} color="black" />}
-            </div>
-          </button>
-        </div>
+        {!isMobile && (
+          <div className='flex flex-row gap-2 justify-end'>
+            <button onClick={() => {
+              if (!props.isFullscreen) {
+                props.setFullscreen();
+                app.setFullscreen(true);
+              } else {
+                document.exitFullscreen();
+                app.setFullscreen(false);
+              }
+            }}>
+              <div>
+                {(props.isFullscreen == true) ? <ExitFullScreenIcon height={24} width={24} color="black" /> : <EnterFullScreenIcon height={24} width={24} color="black" />}
+              </div>
+            </button>
+          </div>)}
       </div>
     </>
   )

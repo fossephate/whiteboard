@@ -64,7 +64,9 @@ export const initialState: State = {
     style: defaultStyle,
     isPanelOpen: true,
     isPenModeEnabled: false,
+    isFullscreenEnabled: false,
     roomCode: '',
+    pingCount: 0,
   },
   ...initialDoc,
 }
@@ -84,6 +86,7 @@ export class AppState extends StateManager<State> {
   socket: any = null;
   savedStyle: any = null;
   someoneElseDrawing: boolean = false;
+  pingTimer: any = null;
 
   constructor(initialState: State) {
     super(initialState, 'fridge-board', 1, (p, n) => n);
@@ -96,6 +99,30 @@ export class AppState extends StateManager<State> {
 
     const socket = io('https://fosse.co', { path: "/8201/socket.io" });
     socket.emit('join-room', roomCode);
+
+    clearInterval(this.pingTimer);
+    this.pingTimer = setInterval(() => {
+      let { pingCount } = this.state.appState;
+      if (pingCount === undefined) {
+        pingCount = 0;
+      }
+      this.patchState({
+        appState: {
+          pingCount: pingCount + 1000,
+        },
+      });
+      if (pingCount > 20000) {
+        window.location.reload();
+      }
+    }, 1000);
+
+    socket.on('ping', () => {
+      this.patchState({
+        appState: {
+          pingCount: 0,
+        },
+      });
+    });
 
     let zoom = 1;
     const isMobile = window.matchMedia("(max-width: 768px)").matches;
@@ -135,7 +162,11 @@ export class AppState extends StateManager<State> {
           shapes: data,
         },
       });
-    })
+    });
+
+    socket.on('must-join-a-room', () => {
+      socket.emit('join-room', this.state.appState.roomCode);
+    });
 
 
     socket.on('undo', (data) => {
@@ -246,7 +277,7 @@ export class AppState extends StateManager<State> {
 
   onPointerDown: TLPointerEventHandler = (info, event) => {
     const { state } = this;
-    const { status, tool } = this.state.appState;
+    const { status, tool, pingCount } = this.state.appState;
     if (this.someoneElseDrawing) {
       return;
     }
@@ -254,6 +285,11 @@ export class AppState extends StateManager<State> {
       if (["mouse", "touch"].indexOf(event.pointerType) > -1) {
         return;
       }
+    }
+
+    // don't allow drawing if we're potentially disconnected:
+    if (pingCount > 4000) {
+      return;
     }
 
     if (tool === 'pan' && status != 'pinching') {
@@ -307,8 +343,6 @@ export class AppState extends StateManager<State> {
     if (tool === 'pan') {
       return;
     }
-
-    // window.alert(status)
 
     if (status == 'pinching') {
       return;
@@ -380,7 +414,6 @@ export class AppState extends StateManager<State> {
     this.patchState({
       pageState: {
         camera: {
-          // point: [0, 0],
           zoom: newZoom,
         },
       },
@@ -392,7 +425,6 @@ export class AppState extends StateManager<State> {
     this.patchState({
       pageState: {
         camera: {
-          // point: [0, 0],
           zoom: newZoom,
         },
       },
@@ -415,7 +447,7 @@ export class AppState extends StateManager<State> {
     })
   }
 
-  togglePenMode = () => {
+  setPenMode = (enabled: boolean) => {
 
     const currentAppState = this.state.appState
     const initialAppState = initialState.appState
@@ -424,7 +456,26 @@ export class AppState extends StateManager<State> {
         appState: initialState,
       },
       after: {
-        appState: { ...initialState, isPenModeEnabled: !this.state.appState.isPenModeEnabled, },
+        appState: { ...initialState, isPenModeEnabled: enabled, isFullscreenEnabled: currentAppState.isFullscreenEnabled, },
+      },
+    });
+    // this.patchState({
+    //   appState: {
+    //     isPenModeEnabled: !this.state.appState.isPenModeEnabled
+    //   },
+    // })
+  }
+
+  setFullscreen = (enabled: boolean) => {
+
+    const currentAppState = this.state.appState
+    const initialAppState = initialState.appState
+    this.setState({
+      before: {
+        appState: initialState,
+      },
+      after: {
+        appState: { ...initialState, isFullscreenEnabled: enabled, isPenModeEnabled: currentAppState.isPenModeEnabled, },
       },
     });
     // this.patchState({
@@ -1113,7 +1164,128 @@ export class AppState extends StateManager<State> {
   }
 }
 
-export const app = new AppState(initialState);
+
+// class DummyAppState extends StateManager<State> {
+class DummyAppState {
+
+  shapeUtils: TLShapeUtilsMap<DrawShape> = {};
+
+  log = false;
+
+  currentStroke = {
+    startTime: 0,
+  };
+
+  socket: any = null;
+  savedStyle: any = null;
+  someoneElseDrawing: boolean = false;
+  pingTimer: any = null;
+
+  constructor(initialState: State) {
+    // super(initialState, 'fridge-board', 1, (p, n) => n);
+  }
+
+  setRoomCode(roomCode: string) { }
+
+  onReady() { }
+
+  cleanup(state: State): State {
+    return state;
+  }
+
+  onPointerDown: TLPointerEventHandler = (info, event) => { };
+
+  onPointerMove: TLPointerEventHandler = (info, event) => { };
+
+  onPointerUp: TLPointerEventHandler = (event, info) => { };
+
+  zoomOut() { }
+
+  zoomIn() { }
+
+  zoomTo1() { }
+
+  setPenMode(enabled: boolean) { }
+
+  setFullscreen(enabled: boolean) { }
+
+  pinchZoom(point: number[], delta: number[], zoom: number): this {
+    return this;
+  }
+
+  onPinchEnd: TLPinchEventHandler = (event, info) => { };
+
+  onPinch: TLPinchEventHandler = (info, e) => { };
+
+  onPan: TLWheelEventHandler = (info) => {
+    return this;
+  };
+
+  togglePanelOpen() { }
+
+  createDrawingShape(point: number[], camera: any) { }
+
+  updateDrawingShape(point: number[], pressure: number, camera: any) { }
+
+  completeDrawingShape() { }
+
+  centerShape(id: string) { }
+
+  replayShape(points: number[][]) { }
+
+  addShape(shape: Partial<DrawShape>) { }
+
+  erase(point: number[]) { }
+
+  eraseAll() { }
+
+  startStyleUpdate() { }
+
+  patchStyleForAllShapes(style: Partial<DrawStyles>) { }
+
+  patchStyle(style: Partial<DrawStyles>) { }
+
+  finishStyleUpdate() { }
+
+  setNextStyleForAllShapes(style: Partial<DrawStyles>) { }
+
+  zoomToContent(): this {
+    return this;
+  }
+
+  resetStyles() { }
+
+  copyStyles() { }
+
+  copySvg() { }
+
+  resetDoc() { }
+
+  undo2() { }
+
+  resetToServerState() { }
+
+  redo2() { }
+
+  onPinchStart: TLPinchEventHandler = () => { };
+
+  selectDrawingTool() { }
+
+  selectErasingTool() { }
+
+  selectPanningTool() { }
+
+  useStore() { return {} }
+}
+
+var app2: any;
+if (typeof window !== 'undefined') {
+  app2 = new AppState(initialState);
+} else {
+  app2 = new DummyAppState(initialState);
+}
+export const app = app2;
+// export const app = new AppState(initialState);
 
 export function useAppState(): State
 export function useAppState<K>(selector: StateSelector<State, K>): K

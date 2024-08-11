@@ -1,12 +1,18 @@
 'use client'
+import dynamic from 'next/dynamic'
 
-import { FC, useEffect, useState, useRef } from 'react'
-import { Editor } from '../../components/editor'
+
+import { FC, lazy, useEffect, useRef } from 'react'
+import { Editor } from '../../components/editor';
 import { Controls } from '../../components/controls'
 import { Panel } from '../../components/panel'
 import { useKeyboardShortcuts } from '../../hooks'
 import useFullscreenStatus from '../../utils/useFullscreenStatus'
-import { AppState, app } from '../../state/state'
+import { app } from '../../state/state';
+
+const RealPage = dynamic(() => import('./RealPage'), {
+    ssr: false,
+});
 
 interface pageProps {
     params: {
@@ -14,25 +20,45 @@ interface pageProps {
     };
 }
 
-const page: FC<pageProps> = ({ params }) => {
+// const Page: FC<pageProps> = ({ params }) => {
+//     const { roomCode } = params;
+//     // const roomCode = 'test';
+//     useKeyboardShortcuts();
+
+//     const maximizableElement = useRef(null);
+//     const [isFullscreen, setFullscreen] = useFullscreenStatus(maximizableElement);
+
+//     useEffect(() => {
+//         app.setRoomCode(roomCode);
+//     }, [roomCode]);
+
+//     return (
+//         <div ref={maximizableElement} className='w-screen pt-12 bg-white flex flex-col justify-center items-center gap-10'>
+//             <Editor />
+//             <Controls />
+//             <Panel isFullscreen={isFullscreen} setFullscreen={setFullscreen} />
+//         </div>
+//     )
+// }
+
+
+const Page: FC<pageProps> = ({ params }) => {
     const { roomCode } = params;
-    useKeyboardShortcuts();
-
-    const maximizableElement = useRef(null);
-    const [isFullscreen, setIsFullscreen] = useFullscreenStatus(maximizableElement);
-    const handleExitFullscreen = () => document.exitFullscreen();
-
-    useEffect(() => {
-        app.setRoomCode(roomCode);
-    }, [roomCode]);
 
     return (
-        <div ref={maximizableElement} className='w-screen pt-12 bg-white flex flex-col justify-center items-center gap-10'>
-            <Editor />
-            <Controls />
-            <Panel isFullscreen={isFullscreen} onExitFullscreen={handleExitFullscreen} setIsFullscreen={setIsFullscreen} />
-        </div>
+        <RealPage roomCode={roomCode} />
     )
 }
 
-export default page;
+
+
+// const SomePage = () => {
+//     return (
+//         <div>Only renders in the browser</div>
+//     );
+// }
+// export default 
+
+export default Page;
+// export default Page;
+// export default withNoSSR(lazy(() => import('./actual'));

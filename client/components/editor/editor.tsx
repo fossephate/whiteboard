@@ -1,7 +1,9 @@
 import * as React from 'react'
 import { Renderer } from '@tldraw/core'
-import { app, useAppState } from 'state'
+import { app, useAppState } from '../../state';
 import styles from './editor.module.css'
+
+// export const Editor = (): JSX.Element => {
 
 export function Editor(): JSX.Element {
   const {
@@ -13,14 +15,14 @@ export function Editor(): JSX.Element {
     onPointerMove,
     onPointerUp,
     shapeUtils,
-  } = app
+  } = app;
   const { page, pageState } = useAppState()
 
-  React.useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    window.freehand = app
-  }, [])
+  // React.useEffect(() => {
+  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //   // @ts-ignore
+  //   window.freehand = app
+  // }, [])
 
 
   return (
