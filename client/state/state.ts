@@ -59,11 +59,12 @@ export const defaultStyle: DrawStyles = {
 export const initialState: State = {
   appState: {
     status: 'idle',
-    tool: 'drawing',
+    tool: 'draw',
     editingId: undefined,
     style: defaultStyle,
     isPanelOpen: true,
     isPenModeEnabled: false,
+    roomCode: '',
   },
   ...initialDoc,
 }
@@ -113,8 +114,10 @@ export class AppState extends StateManager<State> {
           zoom: zoom,
         },
       },
-    })
-
+      appState: {
+        roomCode: roomCode,
+      },
+    });
 
     socket.emit('get-state');
 
@@ -152,23 +155,25 @@ export class AppState extends StateManager<State> {
 
       this.savedStyle = JSON.stringify(this.state.appState.style);
       this.patchStyle(JSON.parse(style));
-      this.createDrawingShape(info.point, camera)
+      this.createDrawingShape(info.point, camera);
     })
 
     socket.on('pointer-move', (data) => {
       const { status, tool, info, camera } = data;
-      if (status === 'drawing') {
-        const nextShape = this.updateDrawingShape(data.info.point, info.pressure, camera)
-        if (nextShape) {
-          this.patchState({
-            page: {
-              shapes: {
-                [nextShape.id]: nextShape,
-              },
-            },
-          })
-        }
+      if (status !== 'drawing') {
+        return;
       }
+      const nextShape = this.updateDrawingShape(data.info.point, info.pressure, camera)
+      if (nextShape) {
+        this.patchState({
+          page: {
+            shapes: {
+              [nextShape.id]: nextShape,
+            },
+          },
+        })
+      }
+
     })
 
     socket.on('pointer-end', async (data) => {
@@ -241,6 +246,7 @@ export class AppState extends StateManager<State> {
 
   onPointerDown: TLPointerEventHandler = (info, event) => {
     const { state } = this;
+    const { status, tool } = this.state.appState;
     if (this.someoneElseDrawing) {
       return;
     }
@@ -249,12 +255,17 @@ export class AppState extends StateManager<State> {
         return;
       }
     }
-    if (state.appState.tool === 'panning') {
+
+    if (tool === 'pan' && status != 'pinching') {
       this.patchState({
         appState: {
           status: 'panning',
         },
       });
+      return;
+    }
+
+    if (status == 'pinching' || tool == 'pan') {
       return;
     }
 
@@ -281,7 +292,7 @@ export class AppState extends StateManager<State> {
     const { status, tool } = this.state.appState
     const { camera } = this.state.pageState;
 
-    if (tool === 'panning' && status === 'panning') {
+    if (tool === 'pan' && status === 'panning') {
       const delta = Vec.div(info.delta, camera.zoom);
       this.patchState({
         pageState: {
@@ -293,6 +304,20 @@ export class AppState extends StateManager<State> {
       return;
     }
 
+    if (tool === 'pan') {
+      return;
+    }
+
+    // window.alert(status)
+
+    if (status == 'pinching') {
+      return;
+    }
+
+    if (status !== 'drawing') {
+      return;
+    }
+
     this.socket?.emit('pointer-move', {
       status: status,
       tool: tool,
@@ -300,32 +325,42 @@ export class AppState extends StateManager<State> {
       camera: camera,
     });
 
-    if (status === 'drawing') {
-      const nextShape = this.updateDrawingShape(info.point, info.pressure, camera)
-      if (nextShape) {
-        this.patchState({
-          page: {
-            shapes: {
-              [nextShape.id]: nextShape,
-            },
+    const nextShape = this.updateDrawingShape(info.point, info.pressure, camera)
+    if (nextShape) {
+      this.patchState({
+        page: {
+          shapes: {
+            [nextShape.id]: nextShape,
           },
-        })
-      }
+        },
+      })
     }
+
   }
 
-  onPointerUp: TLPointerEventHandler = () => {
+  onPointerUp: TLPointerEventHandler = (event, info) => {
     const { state } = this;
+    const tool = this.state.appState.tool;
+    const status = this.state.appState.status;
     if (this.someoneElseDrawing) {
       return;
     }
 
-    if (state.appState.tool === 'panning') {
-      this.patchState({
-        appState: {
-          status: 'idle',
-        },
-      });
+    if (!info.isPrimary) {
+      return;
+    }
+
+    this.patchState({
+      appState: {
+        status: 'idle',
+      },
+    });
+
+    if (status == 'pinching') {
+      return;
+    }
+
+    if (tool === 'pan') {
       return;
     }
 
@@ -345,7 +380,7 @@ export class AppState extends StateManager<State> {
     this.patchState({
       pageState: {
         camera: {
-          point: [0, 0],
+          // point: [0, 0],
           zoom: newZoom,
         },
       },
@@ -357,7 +392,7 @@ export class AppState extends StateManager<State> {
     this.patchState({
       pageState: {
         camera: {
-          point: [0, 0],
+          // point: [0, 0],
           zoom: newZoom,
         },
       },
@@ -365,11 +400,16 @@ export class AppState extends StateManager<State> {
   }
 
   zoomTo1 = () => {
+    let zoom = 1;
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    if (isMobile) {
+      zoom = 0.421875;
+    }
     this.patchState({
       pageState: {
         camera: {
           point: [0, 0],
-          zoom: 1,
+          zoom: zoom,
         },
       },
     })
@@ -395,7 +435,6 @@ export class AppState extends StateManager<State> {
   }
 
   pinchZoom = (point: number[], delta: number[], zoom: number): this => {
-    return;
     const { camera } = this.state.pageState
     const nextPoint = Vec.sub(camera.point, Vec.div(delta, camera.zoom))
     const nextZoom = zoom
@@ -412,15 +451,29 @@ export class AppState extends StateManager<State> {
     })
   }
 
-  onPinchEnd: TLPinchEventHandler = () => {
-    return;
-    this.patchState({
-      appState: { status: 'idle' },
-    })
+  onPinchEnd: TLPinchEventHandler = (event, info) => {
+    const { tool } = this.state.appState;
+
+    if (tool == 'pan') {
+      this.patchState({
+        appState: { status: 'panning' },
+      })
+      return;
+    }
+
+    // we don't need to set the status to idle because it will be set to idle when the last touch event goes up:
+
+    // if (!info.isPrimary) {
+    //   return;
+    // }
+
+    // this.patchState({
+    //   appState: { status: 'idle' },
+    // })
+
   }
 
   onPinch: TLPinchEventHandler = (info, e) => {
-    return;
     if (this.state.appState.status !== 'pinching') return
     this.pinchZoom(info.point, info.delta, info.delta[2])
     this.onPointerMove?.(info, e as unknown as React.PointerEvent)
@@ -501,7 +554,7 @@ export class AppState extends StateManager<State> {
       isDone: false,
     })
 
-    this.currentStroke.startTime = Date.now()
+    this.currentStroke.startTime = Date.now();
 
     return this.patchState({
       appState: {
@@ -990,13 +1043,22 @@ export class AppState extends StateManager<State> {
     this.socket.emit('undo');
   }
 
+  resetToServerState = () => {
+    this.socket.emit('get-state');
+  }
+
   redo2 = () => {
     this.socket.emit('redo');
   }
 
   onPinchStart: TLPinchEventHandler = () => {
-    return;
-    if (this.state.appState.status !== 'idle') return
+    // return;
+    // window.alert("pinchStart");
+    const status = this.state.appState.status;
+    if (status == 'drawing') {
+      // undo to the point right before we started drawing:
+      this.resetToServerState();
+    }
 
     this.patchState({
       appState: { status: 'pinching' },
@@ -1006,7 +1068,7 @@ export class AppState extends StateManager<State> {
   selectDrawingTool = () => {
 
     // reset the style if coming from the eraser:
-    if (this.state.appState.tool == 'erasing') {
+    if (this.state.appState.tool == 'eraser') {
       if (this.savedStyle != null) {
         this.patchStyle(JSON.parse(this.savedStyle));
       } else {
@@ -1016,26 +1078,36 @@ export class AppState extends StateManager<State> {
 
     this.patchState({
       appState: {
-        tool: 'drawing',
+        tool: 'draw',
       },
     });
   }
 
   selectErasingTool = () => {
+    // only save the style if coming from the draw tool:
+    const { tool } = this.state.appState;
+    if (tool == 'draw') {
+      this.savedStyle = JSON.stringify(this.state.appState.style);
+    }
+
+    this.patchStyle({ size: 80, fill: "#F8F9FA" });
     this.patchState({
       appState: {
-        tool: 'erasing',
+        tool: 'eraser',
       },
     });
-    this.savedStyle = JSON.stringify(this.state.appState.style);
-    this.patchStyle({ size: 80, fill: "#F8F9FA" });
+
   }
 
   selectPanningTool = () => {
-    this.savedStyle = JSON.stringify(this.state.appState.style);
+    // only save the style if coming from the draw tool:
+    const { tool } = this.state.appState;
+    if (tool == 'draw') {
+      this.savedStyle = JSON.stringify(this.state.appState.style);
+    }
     this.patchState({
       appState: {
-        tool: 'panning',
+        tool: 'pan',
       },
     });
   }

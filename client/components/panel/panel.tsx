@@ -1,13 +1,16 @@
 import * as React from 'react'
 import styles from './panel.module.css'
 import { app, useAppState } from 'state'
-import { GitHubLogoIcon, HamburgerMenuIcon, EnterFullScreenIcon, ExitFullScreenIcon } from '@radix-ui/react-icons'
+import { GitHubLogoIcon, HamburgerMenuIcon, EnterFullScreenIcon, ExitFullScreenIcon } from '@radix-ui/react-icons';
 
 export function Panel(props: any) {
   const tool = useAppState((s) => s.appState.tool)
   const zoomLevel = useAppState((s) => s.pageState.camera.zoom)
   const isPenModeEnabled = useAppState((s) => s.appState.isPenModeEnabled)
+  const status = useAppState((s) => s.appState.status);
+  const roomCode = useAppState((s) => s.appState.roomCode);
 
+  
 
   return (
     <>
@@ -17,7 +20,7 @@ export function Panel(props: any) {
           target="_blank"
           rel="noopener nofollow"
         >
-          fridge-board
+          fridge-board {status} {roomCode}
         </a>
       </div>
       <div className={[styles.container, styles.top, styles.left].join(' ')}>
@@ -39,17 +42,20 @@ export function Panel(props: any) {
         <div className={'flex flex-row gap-2 justify-end'}>
           <button
             onClick={app.selectDrawingTool}
-            data-active={tool === 'drawing'}
+            data-active={tool === 'draw'}
           >
             Draw
           </button>
           <button
             onClick={app.selectErasingTool}
-            data-active={tool === 'erasing'}
+            data-active={tool === 'eraser'}
           >
             Erase
           </button>
-          <button onClick={app.selectPanningTool} data-active={tool === 'panning'}>
+          <button
+            onClick={app.selectPanningTool}
+            data-active={tool === 'pan'}
+          >
             Pan
           </button>
         </div>

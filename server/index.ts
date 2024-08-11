@@ -47,7 +47,8 @@ function pushState(roomCode: string, data: any) {
 io.on('connection', (socket) => {
   let currentRoom: any = null;
 
-  socket.on('join-room', (roomCode) => {
+  socket.on('join-room', (roomCode: string) => {
+    roomCode = roomCode.toLowerCase();
     if (currentRoom) {
       socket.leave(currentRoom);
     }
