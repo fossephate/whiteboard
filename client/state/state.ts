@@ -111,9 +111,7 @@ export class AppState extends StateManager<State> {
   }
 
   connect = async () => {
-
     const { roomCode } = this.state.appState;
-    console.log("CONNECTING WITH ROOM CODE: " +roomCode);
 
     let zoom = 1;
     const isMobile = window.matchMedia("(max-width: 768px)").matches;
@@ -142,8 +140,7 @@ export class AppState extends StateManager<State> {
     this.socket.emit('join-room', roomCode);
     this.socket.emit('get-state');
 
-    this.socket.on('state-from-server', (data) => {
-      console.info("got state from server");
+    this.socket.on('state-from-server', (data: any) => {
       if (data == null) {
         data = [];
       }
@@ -168,7 +165,6 @@ export class AppState extends StateManager<State> {
     });
 
     this.socket.on('must-join-a-room', () => {
-      console.log(`need to join a room! ${this.state.appState.roomCode}`);
       this.socket.emit('join-room', this.state.appState.roomCode);
     });
 
@@ -468,10 +464,15 @@ export class AppState extends StateManager<State> {
     })
   }
 
-  setPenMode = (enabled: boolean) => {
+  setPenMode = (enabled?: boolean) => {
 
     const currentAppState = this.state.appState
     const initialAppState = initialState.appState
+
+    if (enabled == null) {
+      enabled = !this.state.appState.isPenModeEnabled;
+    }
+
     this.setState({
       before: {
         appState: initialState,

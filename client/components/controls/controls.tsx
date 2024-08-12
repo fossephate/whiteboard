@@ -190,7 +190,7 @@ export function Controls() {
   }, [])
 
   const handleTogglePenMode = React.useCallback(() => {
-    app.togglePenMode();
+    app.setPenMode();// toggle
   }, [])
 
   if (style?.size == null) {
