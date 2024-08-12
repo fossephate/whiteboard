@@ -65,7 +65,6 @@ export const initialState: State = {
     isPanelOpen: true,
     isPenModeEnabled: false,
     isFullscreenEnabled: false,
-    roomCode: 'default',
     pingCount: 0,
   },
   ...initialDoc,
@@ -88,6 +87,7 @@ export class AppState extends StateManager<State> {
   someoneElseDrawing: boolean = false;
   pingTimer: any = null;
   connectTimer: any = null;
+  roomCode: string = 'default';
 
   constructor(initialState: State) {
     super(initialState, 'fridge-board', 1, (p, n) => n);
@@ -99,11 +99,8 @@ export class AppState extends StateManager<State> {
       return;
     }
 
-    await this.patchState({
-      appState: {
-        roomCode: roomCode,
-      },
-    });
+    this.roomCode = roomCode;
+
     clearTimeout(this.connectTimer);
     this.connectTimer = setTimeout(() => {
       this.connect();
@@ -111,7 +108,6 @@ export class AppState extends StateManager<State> {
   }
 
   connect = async () => {
-    const { roomCode } = this.state.appState;
 
     let zoom = 1;
     const isMobile = window.matchMedia("(max-width: 768px)").matches;
@@ -137,7 +133,7 @@ export class AppState extends StateManager<State> {
     }
 
     this.socket = io('https://fosse.co', { path: "/8201/socket.io" });
-    this.socket.emit('join-room', roomCode);
+    this.socket.emit('join-room', this.roomCode);
     this.socket.emit('get-state');
 
     this.socket.on('state-from-server', (data: any) => {
@@ -165,7 +161,7 @@ export class AppState extends StateManager<State> {
     });
 
     this.socket.on('must-join-a-room', () => {
-      this.socket.emit('join-room', this.state.appState.roomCode);
+      this.socket.emit('join-room', this.roomCode);
     });
 
 
@@ -278,6 +274,12 @@ export class AppState extends StateManager<State> {
         window.location.reload();
       }
     }, 1000);
+
+    this.patchState({
+      page: {
+        shapes: [],
+      },
+    });
   }
 
   cleanup = (state: State) => {
@@ -478,7 +480,11 @@ export class AppState extends StateManager<State> {
         appState: initialState,
       },
       after: {
-        appState: { ...initialState, isPenModeEnabled: enabled, isFullscreenEnabled: currentAppState.isFullscreenEnabled, roomCode: currentAppState.roomCode, },
+        appState: {
+          ...initialState,
+          isPenModeEnabled: enabled,
+          isFullscreenEnabled: currentAppState.isFullscreenEnabled,
+        },
       },
     });
     // this.patchState({
@@ -497,7 +503,12 @@ export class AppState extends StateManager<State> {
         appState: initialState,
       },
       after: {
-        appState: { ...initialState, isFullscreenEnabled: enabled, isPenModeEnabled: currentAppState.isPenModeEnabled, roomCode: currentAppState.roomCode, },
+        appState: {
+          ...initialState,
+          isFullscreenEnabled: enabled,
+          isPenModeEnabled: currentAppState.isPenModeEnabled,
+          // roomCode: currentAppState.roomCode,
+        },
       },
     });
     // this.patchState({
@@ -887,43 +898,6 @@ export class AppState extends StateManager<State> {
   setNextStyleForAllShapes = (style: Partial<DrawStyles>) => {
     return;
   }
-
-  // resetStyle = (prop: keyof DrawStyles) => {
-  //   const { shapes } = this.state.page
-  //   const { state } = this
-
-  //   const initialStyle = initialState.appState.style[prop]
-
-  //   return this.setState({
-  //     before: {
-  //       appState: state.appState,
-  //       page: {
-  //         shapes: {
-  //           ...Object.fromEntries(
-  //             Object.entries(shapes).map(([id, shape]) => [
-  //               id,
-  //               {
-  //                 style: { [prop]: shape.style[prop] },
-  //               },
-  //             ])
-  //           ),
-  //         },
-  //       },
-  //     },
-  //     after: {
-  //       appState: {
-  //         style: { [prop]: initialStyle },
-  //       },
-  //       page: {
-  //         shapes: {
-  //           ...Object.fromEntries(
-  //             Object.keys(shapes).map((id) => [id, { [prop]: initialStyle }])
-  //           ),
-  //         },
-  //       },
-  //     },
-  //   })
-  // }
 
   zoomToContent = (): this => {
     const shapes = Object.values(this.state.page.shapes)
