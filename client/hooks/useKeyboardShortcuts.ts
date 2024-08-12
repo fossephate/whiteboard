@@ -4,11 +4,11 @@ import { app } from 'state'
 
 export function useKeyboardShortcuts() {
   useHotkeys('command+z,ctrl+z', () => {
-    app.undo()
+    app.undo2()
   })
 
   useHotkeys('command+shift+z,ctrl+shift+z', () => {
-    app.redo()
+    app.redo2()
   })
 
   useHotkeys('command+shift+c,ctrl+shift+c', () => {

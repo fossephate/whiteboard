@@ -135,7 +135,6 @@ io.on('connection', (socket) => {
 
   socket.on('pointer-move', (data) => {
     if (!currentRoom) {
-      socket.emit('must-join-a-room');
       return;
     }
     socket.to(currentRoom).emit('pointer-move', data);

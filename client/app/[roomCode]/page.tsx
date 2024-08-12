@@ -20,35 +20,34 @@ interface pageProps {
     };
 }
 
-// const Page: FC<pageProps> = ({ params }) => {
-//     const { roomCode } = params;
-//     // const roomCode = 'test';
-//     useKeyboardShortcuts();
-
-//     const maximizableElement = useRef(null);
-//     const [isFullscreen, setFullscreen] = useFullscreenStatus(maximizableElement);
-
-//     useEffect(() => {
-//         app.setRoomCode(roomCode);
-//     }, [roomCode]);
-
-//     return (
-//         <div ref={maximizableElement} className='w-screen pt-12 bg-white flex flex-col justify-center items-center gap-10'>
-//             <Editor />
-//             <Controls />
-//             <Panel isFullscreen={isFullscreen} setFullscreen={setFullscreen} />
-//         </div>
-//     )
-// }
-
-
 const Page: FC<pageProps> = ({ params }) => {
     const { roomCode } = params;
+    useKeyboardShortcuts();
+
+    const maximizableElement = useRef(null);
+    const [isFullscreen, setFullscreen] = useFullscreenStatus(maximizableElement);
+
+    useEffect(() => {
+        app.setRoomCode(roomCode);
+    }, [roomCode]);
 
     return (
-        <RealPage roomCode={roomCode} />
+        <div ref={maximizableElement} className='w-screen pt-12 bg-white flex flex-col justify-center items-center gap-10'>
+            <Editor />
+            <Controls />
+            <Panel isFullscreen={isFullscreen} setFullscreen={setFullscreen} />
+        </div>
     )
 }
+
+
+// const Page: FC<pageProps> = ({ params }) => {
+//     const { roomCode } = params;
+
+//     return (
+//         <RealPage roomCode={roomCode} />
+//     )
+// }
 
 
 

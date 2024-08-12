@@ -65,7 +65,7 @@ export const initialState: State = {
     isPanelOpen: true,
     isPenModeEnabled: false,
     isFullscreenEnabled: false,
-    roomCode: '',
+    roomCode: 'default',
     pingCount: 0,
   },
   ...initialDoc,
@@ -87,42 +87,33 @@ export class AppState extends StateManager<State> {
   savedStyle: any = null;
   someoneElseDrawing: boolean = false;
   pingTimer: any = null;
+  connectTimer: any = null;
 
   constructor(initialState: State) {
     super(initialState, 'fridge-board', 1, (p, n) => n);
   }
 
-  setRoomCode = (roomCode: string) => {
-    if (this.socket != null) {
-      this.socket?.close();
+  setRoomCode = async (roomCode: string) => {
+    if (roomCode == '') {
+      console.error(`roomCode was empty!!!`);
+      return;
     }
 
-    const socket = io('https://fosse.co', { path: "/8201/socket.io" });
-    socket.emit('join-room', roomCode);
-
-    clearInterval(this.pingTimer);
-    this.pingTimer = setInterval(() => {
-      let { pingCount } = this.state.appState;
-      if (pingCount === undefined) {
-        pingCount = 0;
-      }
-      this.patchState({
-        appState: {
-          pingCount: pingCount + 1000,
-        },
-      });
-      if (pingCount > 20000) {
-        window.location.reload();
-      }
-    }, 1000);
-
-    socket.on('ping', () => {
-      this.patchState({
-        appState: {
-          pingCount: 0,
-        },
-      });
+    await this.patchState({
+      appState: {
+        roomCode: roomCode,
+      },
     });
+    clearTimeout(this.connectTimer);
+    this.connectTimer = setTimeout(() => {
+      this.connect();
+    }, 1000);
+  }
+
+  connect = async () => {
+
+    const { roomCode } = this.state.appState;
+    console.log("CONNECTING WITH ROOM CODE: " +roomCode);
 
     let zoom = 1;
     const isMobile = window.matchMedia("(max-width: 768px)").matches;
@@ -131,7 +122,7 @@ export class AppState extends StateManager<State> {
     }
 
     // clear whatever local state we had saved, the server is authoratative on boot:
-    this.patchState({
+    await this.patchState({
       page: {
         shapes: [],
       },
@@ -141,14 +132,18 @@ export class AppState extends StateManager<State> {
           zoom: zoom,
         },
       },
-      appState: {
-        roomCode: roomCode,
-      },
     });
 
-    socket.emit('get-state');
+    if (this.socket != null) {
+      this.socket?.close();
+    }
 
-    socket.on('state-from-server', (data) => {
+    this.socket = io('https://fosse.co', { path: "/8201/socket.io" });
+    this.socket.emit('join-room', roomCode);
+    this.socket.emit('get-state');
+
+    this.socket.on('state-from-server', (data) => {
+      console.info("got state from server");
       if (data == null) {
         data = [];
       }
@@ -164,20 +159,29 @@ export class AppState extends StateManager<State> {
       });
     });
 
-    socket.on('must-join-a-room', () => {
-      socket.emit('join-room', this.state.appState.roomCode);
+    this.socket.on('ping', () => {
+      this.patchState({
+        appState: {
+          pingCount: 0,
+        },
+      });
+    });
+
+    this.socket.on('must-join-a-room', () => {
+      console.log(`need to join a room! ${this.state.appState.roomCode}`);
+      this.socket.emit('join-room', this.state.appState.roomCode);
     });
 
 
-    socket.on('undo', (data) => {
+    this.socket.on('undo', () => {
       this.undo();
     });
 
-    socket.on('redo', (data) => {
+    this.socket.on('redo', () => {
       this.redo();
     });
 
-    socket.on('pointer-start', (data) => {
+    this.socket.on('pointer-start', (data: any) => {
       this.someoneElseDrawing = true;
       const { tool, info, style, camera } = data;
       if (style == null) {
@@ -189,7 +193,7 @@ export class AppState extends StateManager<State> {
       this.createDrawingShape(info.point, camera);
     })
 
-    socket.on('pointer-move', (data) => {
+    this.socket.on('pointer-move', (data: any) => {
       const { status, tool, info, camera } = data;
       if (status !== 'drawing') {
         return;
@@ -207,7 +211,7 @@ export class AppState extends StateManager<State> {
 
     })
 
-    socket.on('pointer-end', async (data) => {
+    this.socket.on('pointer-end', async (data: any) => {
       this.someoneElseDrawing = false;
       this.completeDrawingShape()
 
@@ -215,7 +219,7 @@ export class AppState extends StateManager<State> {
       this.patchStyle(JSON.parse(this.savedStyle));
     });
 
-    socket.on('reset-doc', (data) => {
+    this.socket.on('reset-doc', () => {
       const { shapes } = this.state.page;
       this.patchState({
         page: {
@@ -256,13 +260,28 @@ export class AppState extends StateManager<State> {
     //   })
     // })
 
-    this.socket = socket;
   }
 
   onReady = () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     window['app'] = this;
+
+    clearInterval(this.pingTimer);
+    this.pingTimer = setInterval(() => {
+      let { pingCount } = this.state.appState;
+      if (pingCount === undefined) {
+        pingCount = 0;
+      }
+      this.patchState({
+        appState: {
+          pingCount: pingCount + 1000,
+        },
+      });
+      if (pingCount > 20000) {
+        window.location.reload();
+      }
+    }, 1000);
   }
 
   cleanup = (state: State) => {
@@ -278,6 +297,7 @@ export class AppState extends StateManager<State> {
   onPointerDown: TLPointerEventHandler = (info, event) => {
     const { state } = this;
     const { status, tool, pingCount } = this.state.appState;
+
     if (this.someoneElseDrawing) {
       return;
     }
@@ -457,7 +477,7 @@ export class AppState extends StateManager<State> {
         appState: initialState,
       },
       after: {
-        appState: { ...initialState, isPenModeEnabled: enabled, isFullscreenEnabled: currentAppState.isFullscreenEnabled, },
+        appState: { ...initialState, isPenModeEnabled: enabled, isFullscreenEnabled: currentAppState.isFullscreenEnabled, roomCode: currentAppState.roomCode, },
       },
     });
     // this.patchState({
@@ -469,14 +489,14 @@ export class AppState extends StateManager<State> {
 
   setFullscreen = (enabled: boolean) => {
 
-    const currentAppState = this.state.appState
-    const initialAppState = initialState.appState
+    const currentAppState = this.state.appState;
+    const initialAppState = initialState.appState;
     this.setState({
       before: {
         appState: initialState,
       },
       after: {
-        appState: { ...initialState, isFullscreenEnabled: enabled, isPenModeEnabled: currentAppState.isPenModeEnabled, },
+        appState: { ...initialState, isFullscreenEnabled: enabled, isPenModeEnabled: currentAppState.isPenModeEnabled, roomCode: currentAppState.roomCode, },
       },
     });
     // this.patchState({
@@ -626,7 +646,10 @@ export class AppState extends StateManager<State> {
     if (state.appState.status !== 'drawing') return
     if (!state.appState.editingId) return
 
-    const shape = state.page.shapes[state.appState.editingId]
+    const shape = state.page.shapes[state.appState.editingId];
+    if (!shape) {
+      return;
+    }
 
     const newPoint = [
       ...Vec.sub(
@@ -671,6 +694,9 @@ export class AppState extends StateManager<State> {
     if (!state.appState.editingId) return this // Don't erase while drawing
 
     let shape = shapes[state.appState.editingId]
+    if (!shape) {
+      return;
+    }
 
     shape.isDone = true
 
@@ -1242,14 +1268,14 @@ class DummyAppState {
   useStore() { return {} }
 }
 
-var app2: any;
-if (typeof window !== 'undefined') {
-  app2 = new AppState(initialState);
-} else {
-  app2 = new DummyAppState(initialState);
-}
-export const app = app2;
-// export const app = new AppState(initialState);
+// var app2: any;
+// if (typeof window !== 'undefined') {
+//   app2 = new AppState(initialState);
+// } else {
+//   app2 = new DummyAppState(initialState);
+// }
+// export const app = app2;
+export const app = new AppState(initialState);
 
 export function useAppState(): State
 export function useAppState<K>(selector: StateSelector<State, K>): K
