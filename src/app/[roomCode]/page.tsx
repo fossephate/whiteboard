@@ -17,10 +17,10 @@ const Home: FC<PageProps> = ({ params }) => {
                 <div className="grow">
                     <Whiteboard roomCode={roomCode} />
                 </div>
-                <div className="grow-0 shrink-0 w-full sm:w-80 h-1/3 sm:h-full border-l border-neutral-200 p-2">
+                {/* <div className="grow-0 shrink-0 w-full sm:w-80 h-1/3 sm:h-full border-l border-neutral-200 p-2">
                     <h1 className="font-semibold">Hello, World!</h1>
                     <p>This is a sidebar.</p>
-                </div>
+                </div> */}
             </div>
         </TldrawProvider>
     );

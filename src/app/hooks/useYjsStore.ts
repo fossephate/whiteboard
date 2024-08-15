@@ -226,15 +226,17 @@ export function useYjsStore({
           const records = yStore.yarray.toJSON().map(({ val }) => val);
           store.put(records);
         });
-      } else {
-        // Create the initial store records
-        // Sync the store records to the yjs doc
-        yDoc.transact(() => {
-          for (const record of store.allRecords()) {
-            yStore.set(record.id, record);
-          }
-        });
       }
+      // removed because this behavior sucks:
+      // } else {
+      //   // Create the initial store records
+      //   // Sync the store records to the yjs doc
+      //   yDoc.transact(() => {
+      //     for (const record of store.allRecords()) {
+      //       yStore.set(record.id, record);
+      //     }
+      //   });
+      // }
 
       setStoreWithStatus({
         store,

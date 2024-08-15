@@ -11,7 +11,7 @@ import type { Doc } from "yjs";
 
 export default class YjsServer implements Party.Server {
   yjsOptions: YPartyKitOptions = { persist: true };
-  constructor(public party: Party.Party) {}
+  constructor(public party: Party.Party) { }
 
   getOpts() {
     // options must match when calling unstable_getYDoc and onConnect
