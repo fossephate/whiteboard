@@ -50,8 +50,7 @@ export function useYjsStore({
     const yDoc = new Y.Doc({ gc: true });
     const yArr = yDoc.getArray<{ key: string; val: TLRecord }>(`tl_${roomId}`);
     const yStore = new YKeyValue(yArr);
-
-    console.info(hostUrl)
+    
     return {
       yDoc,
       yStore,
