@@ -1,2 +1,1 @@
-cd ./server/
-npm run server
+HOST=0.0.0.0 PORT=8211 YPERSISTENCE=./db node ./node_modules/y-websocket/bin/server.js
