@@ -4,6 +4,7 @@ import { TldrawProvider } from "@/app/providers/tldraw-context";
 import { FC, lazy, useEffect, useRef } from 'react';
 import { Panel } from '../components/panel';
 import useFullscreenStatus from '../../utils/useFullscreenStatus';
+import { useRouter } from 'next/navigation';
 
 interface pageProps {
     params: {
@@ -17,6 +18,15 @@ const Home: FC<PageProps> = ({ params }) => {
 
     const maximizableElement = useRef(null);
     const [isFullscreen, setFullscreen] = useFullscreenStatus(maximizableElement);
+
+    const router = useRouter();
+
+    useEffect(() => {
+        const lowercaseRoomCode = roomCode.toLowerCase();
+        if (roomCode !== lowercaseRoomCode) {
+            router.replace(`/${lowercaseRoomCode}`);
+        }
+    }, [roomCode, router]);
 
     return (
         <TldrawProvider>

@@ -34,7 +34,7 @@ export function Panel(props: any) {
           <GitHubLogoIcon height={24} width={24} />
         </a>
       </div>)}
-      <div className={[styles.container, styles.bottom, styles.right, 'mb-2 mr-2 flex flex-col'].join(' ')}>
+      <div className={[styles.container, styles.bottom, styles.right, 'mb-20 mr-2 flex flex-col'].join(' ')}>
 
         <div className={'flex flex-row gap-2 justify-end'}>
           {/* <button
