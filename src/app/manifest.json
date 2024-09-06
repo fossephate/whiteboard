@@ -1,0 +1,10 @@
+{
+    "name": "Fridge Board",
+    "short_name": "FridgeBoard",
+    "icons": [],
+    "theme_color": "#FFFFFF",
+    "background_color": "#FFFFFF",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait"
+}
