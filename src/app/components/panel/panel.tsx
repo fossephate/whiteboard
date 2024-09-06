@@ -8,7 +8,7 @@ export function Panel(props: any) {
   const [isMobile, setIsMobile] = React.useState(window.matchMedia("(max-width: 768px)").matches);
   const editor = useEditor();
 
-  const isInstalled = window.matchMedia('(display-mode: fullscreen)').matches;
+  const isInstalled = window.matchMedia('(display-mode: standalone)').matches;
 
 
   React.useEffect(() => {

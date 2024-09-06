@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
         short_name: "FridgeBoard",
         description: 'Whiteboard for your Fridge!',
         // start_url: '/',// TODO: figure out a way to dynamically set to /board/[roomCode]
-        display: 'fullscreen',
+        display: 'standalone',
         background_color: '#fff',
         theme_color: '#fff',
         icons: [
