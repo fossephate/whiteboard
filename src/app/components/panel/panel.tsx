@@ -5,12 +5,23 @@ import { DefaultColorStyle, DefaultSizeStyle, useEditor } from '@tldraw/tldraw';
 
 export function Panel(props: any) {
 
-  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  const [isMobile, setIsMobile] = React.useState(window.matchMedia("(max-width: 768px)").matches);
   const editor = useEditor();
+
+  const isInstalled = window.matchMedia('(display-mode: fullscreen)').matches;
 
 
   React.useEffect(() => {
     editor.zoomToFit();
+  }, []);
+
+  React.useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+
+    const handleResize = () => setIsMobile(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleResize);
+
+    return () => mediaQuery.removeEventListener('change', handleResize);
   }, []);
 
   return (
@@ -29,13 +40,14 @@ export function Panel(props: any) {
           <HamburgerMenuIcon height={24} width={24} color="black" />
         </a>
       </div> */}
-      {!props.isFullscreen && (<div className={[styles.container, styles.top, styles.right].join(' ')}>
+      {!isInstalled && isMobile && !props.isFullscreen && (<div className={[styles.container, styles.top, styles.right].join(' ')}>
         <a
           href="https://github.com/fossephate/fridge-board"
           target="_blank"
-          rel="noopener nofollow"
+          rel="noopener"
+          className="focus:outline-none"
         >
-          <GitHubLogoIcon height={24} width={24} />
+          <GitHubLogoIcon height={32} width={32} />
         </a>
       </div>)}
       <div className={[styles.container, styles.bottom, styles.right, 'mb-2 mr-2 flex flex-col'].join(' ')}>

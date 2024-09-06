@@ -1,9 +1,10 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
+import Head from "next/head";
 import type { ReactNode } from "react";
 
 const APP_NAME = "Fridge Board";
-const APP_DEFAULT_TITLE = "Whiteboard";
+const APP_DEFAULT_TITLE = "FridgeBoard";
 const APP_TITLE_TEMPLATE = "%s - PWA App";
 const APP_DESCRIPTION = "Whiteboard for your fridge!";
 
@@ -40,16 +41,25 @@ export const metadata: Metadata = {
     },
     description: APP_DESCRIPTION,
   },
+  // manifest: new URL("/manifest.json", "https://fosse.co/board/").href,
 };
 
 export const viewport: Viewport = {
   themeColor: "#FFFFFF",
+  viewportFit: "cover",
+  maximumScale: 1,
+  minimumScale: 1,
+  initialScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" dir="ltr">
-      <head />
+      {/* <head /> */}
+      <head>
+        <link rel="manifest" href="/board/manifest.webmanifest" crossOrigin="use-credentials" />
+      </head>
       <body>{children}</body>
     </html>
   );
