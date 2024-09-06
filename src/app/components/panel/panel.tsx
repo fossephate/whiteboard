@@ -8,8 +8,7 @@ export function Panel(props: any) {
   const [isMobile, setIsMobile] = React.useState(window.matchMedia("(max-width: 768px)").matches);
   const editor = useEditor();
 
-  const isInstalled = window.matchMedia('(display-mode: standalone)').matches;
-
+  const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches;
 
   React.useEffect(() => {
     editor.zoomToFit();

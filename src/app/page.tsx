@@ -13,6 +13,10 @@ const LandingPage = () => {
     }
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRoomCode(e.target.value.toLowerCase());
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <h1 className="text-4xl mb-8">Choose a Room Code</h1>
@@ -20,7 +24,7 @@ const LandingPage = () => {
         <input
           type="text"
           value={roomCode}
-          onChange={(e) => setRoomCode(e.target.value)}
+          onChange={handleChange}
           placeholder="Room Code"
           className="p-2 mb-4 border border-gray-300 rounded"
           required
