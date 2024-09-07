@@ -124,14 +124,14 @@ export default function Whiteboard({ roomCode, children }: WhiteboardProps) {
 
   const handleMount = (editor: Editor) => {
     setEditor(editor);
-    // @ts-ignore
-    editor.createShapes = onlineOnly(editor.createShapes.bind(editor), store);
-    // @ts-ignore
-    editor.createShape = onlineOnly(editor.createShape.bind(editor), store);
-    // @ts-ignore
-    editor.deleteShapes = onlineOnly(editor.deleteShapes.bind(editor), store);
-    // @ts-ignore
-    editor.deleteShape = onlineOnly(editor.deleteShape.bind(editor), store);
+    // // @ts-ignore
+    // editor.createShapes = onlineOnly(editor.createShapes.bind(editor), store);
+    // // @ts-ignore
+    // editor.createShape = onlineOnly(editor.createShape.bind(editor), store);
+    // // @ts-ignore
+    // editor.deleteShapes = onlineOnly(editor.deleteShapes.bind(editor), store);
+    // // @ts-ignore
+    // editor.deleteShape = onlineOnly(editor.deleteShape.bind(editor), store);
   };
 
   return (
