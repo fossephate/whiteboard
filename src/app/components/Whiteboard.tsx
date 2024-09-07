@@ -98,6 +98,22 @@ export const customAssetUrls: TLUiAssetUrlOverrides = {
 // [4]
 const customTools = [StickerTool]
 
+
+const onlineOnly = <T extends (...args: any[]) => any>(fn: T, store: any) => {
+  return (...args: Parameters<T>): ReturnType<T> | undefined => {
+    console.warn(store.status);
+    if (["error", "synced-local", "not-synced"].indexOf(store.status) > -1) {
+      window.alert("You're offline!!!");
+      location.reload();
+      return undefined;
+    }
+    if (store.status === "error") {
+      window.alert("error state!!")
+    }
+    return fn(...args);
+  };
+};
+
 export default function Whiteboard({ roomCode, children }: WhiteboardProps) {
   const { setEditor } = useTldraw();
 
@@ -108,6 +124,14 @@ export default function Whiteboard({ roomCode, children }: WhiteboardProps) {
 
   const handleMount = (editor: Editor) => {
     setEditor(editor);
+    // @ts-ignore
+    editor.createShapes = onlineOnly(editor.createShapes.bind(editor), store);
+    // @ts-ignore
+    editor.createShape = onlineOnly(editor.createShape.bind(editor), store);
+    // @ts-ignore
+    editor.deleteShapes = onlineOnly(editor.deleteShapes.bind(editor), store);
+    // @ts-ignore
+    editor.deleteShape = onlineOnly(editor.deleteShape.bind(editor), store);
   };
 
   return (
