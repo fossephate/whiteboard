@@ -2,8 +2,8 @@ import * as React from 'react'
 import styles from './panel.module.css'
 import { GitHubLogoIcon, HamburgerMenuIcon, EnterFullScreenIcon, ExitFullScreenIcon } from '@radix-ui/react-icons';
 import { DefaultColorStyle, DefaultSizeStyle, useEditor } from '@tldraw/tldraw';
-import { useYjsStore } from '@/app/hooks/useYjsStore';
-import { PARTYKIT_HOST } from '../Whiteboard';
+// import { useYjsStore } from '@/app/hooks/useYjsStore';
+// import { PARTYKIT_HOST } from '../Whiteboard';
 
 export function Panel(props: any) {
 
@@ -28,10 +28,10 @@ export function Panel(props: any) {
     return () => mediaQuery.removeEventListener('change', handleResize);
   }, []);
 
-  const { status } = useYjsStore({
-    roomId: props.roomCode,
-    hostUrl: PARTYKIT_HOST,
-  });
+  // const { status } = useYjsStore({
+  //   roomId: props.roomCode,
+  //   hostUrl: PARTYKIT_HOST,
+  // });
 
   const [isOffline, setIsOffline] = React.useState(["error", "synced-local", "not-synced"].indexOf(status) > -1);
 

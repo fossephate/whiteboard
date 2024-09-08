@@ -3,9 +3,9 @@
 import { DefaultKeyboardShortcutsDialog, DefaultKeyboardShortcutsDialogContent, DefaultToolbar, DefaultToolbarContent, Editor, TLComponents, Tldraw, TldrawUiMenuItem, TLUiAssetUrlOverrides, TLUiComponents, TLUiOverrides, useEditor, useIsToolSelected, useTools, } from "@tldraw/tldraw";
 import "@tldraw/tldraw/tldraw.css";
 import { useTldraw } from "@/app/providers/tldraw-context";
-import { useYjsStore } from "@/app/hooks/useYjsStore";
+import { useSocketIOStore } from "@/app/hooks/useSocketStore";
 
-export const PARTYKIT_HOST = process.env.NEXT_PUBLIC_PARTYKIT_HOST!;
+export const SOCKET_HOST = process.env.NEXT_PUBLIC_SOCKET_HOST!;
 
 interface WhiteboardProps {
   roomCode: string;
@@ -117,9 +117,9 @@ const onlineOnly = <T extends (...args: any[]) => any>(fn: T, store: any) => {
 export default function Whiteboard({ roomCode, children }: WhiteboardProps) {
   const { setEditor } = useTldraw();
 
-  const store = useYjsStore({
+  const store = useSocketIOStore({
     roomId: roomCode,
-    hostUrl: PARTYKIT_HOST,
+    hostUrl: SOCKET_HOST,
   });
 
   const handleMount = (editor: Editor) => {
