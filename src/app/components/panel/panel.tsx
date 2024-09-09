@@ -2,14 +2,10 @@ import * as React from 'react'
 import styles from './panel.module.css'
 import { GitHubLogoIcon, HamburgerMenuIcon, EnterFullScreenIcon, ExitFullScreenIcon } from '@radix-ui/react-icons';
 import { DefaultColorStyle, DefaultSizeStyle, useEditor } from '@tldraw/tldraw';
-// import { useYjsStore } from '@/app/hooks/useYjsStore';
-// import { PARTYKIT_HOST } from '../Whiteboard';
 
 export function Panel(props: any) {
 
   const [isMobile, setIsMobile] = React.useState(window.matchMedia("(max-width: 768px)").matches);
-
-  
 
   const editor = useEditor();
 
@@ -28,16 +24,11 @@ export function Panel(props: any) {
     return () => mediaQuery.removeEventListener('change', handleResize);
   }, []);
 
-  // const { status } = useYjsStore({
-  //   roomId: props.roomCode,
-  //   hostUrl: PARTYKIT_HOST,
-  // });
+  // const [isOffline, setIsOffline] = React.useState(["error", "synced-local", "not-synced"].indexOf(status) > -1);
 
-  const [isOffline, setIsOffline] = React.useState(["error", "synced-local", "not-synced"].indexOf(status) > -1);
-
-  React.useEffect(() => {
-    setIsOffline(["error", "synced-local", "not-synced"].indexOf(status) > -1);
-  }, [status]);
+  // React.useEffect(() => {
+  //   setIsOffline(["error", "synced-local", "not-synced"].indexOf(editor.store.) > -1);
+  // }, [status]);
 
 
   return (
@@ -72,12 +63,12 @@ export function Panel(props: any) {
           className={`${isOffline ? 'bg-red-500' : 'bg-green-500'
             } rounded-full p-2 h-5 text-sm flex items-center justify-center`}
           title={isOffline ? 'Offline' : 'Online'}
-        > */}
-          {/* {isOffline ? 'Offline' : 'Online'}
+        >
+          {isOffline ? 'Offline' : 'Online'}
           {isOffline ? (
             <span className="text-xs">!</span>
-          ) : null} */}
-          {/* {status}
+          ) : null}
+          {status}
         </div>
       </div> */}
       <div className={[styles.container, styles.bottom, styles.right, 'mb-2 mr-2 flex flex-col'].join(' ')}>

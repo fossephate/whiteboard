@@ -6,6 +6,8 @@ import { useTldraw } from "@/app/providers/tldraw-context";
 import { useSocketIOStore } from "@/app/hooks/useSocketStore";
 
 export const SOCKET_HOST = process.env.NEXT_PUBLIC_SOCKET_HOST!;
+export const SOCKET_PATH = process.env.NEXT_PUBLIC_SOCKET_PATH!;
+
 
 interface WhiteboardProps {
   roomCode: string;
@@ -58,6 +60,7 @@ const uiOverrides: TLUiOverrides = {
         if (!res) return;
         let allShapes = Array.from(editor.getCurrentPageShapeIds());
         editor.deleteShapes(allShapes);
+        editor.resetZoom();
       }
     }
     return tools
@@ -120,6 +123,7 @@ export default function Whiteboard({ roomCode, children }: WhiteboardProps) {
   const store = useSocketIOStore({
     roomId: roomCode,
     hostUrl: SOCKET_HOST,
+    hostPath: SOCKET_PATH,
   });
 
   const handleMount = (editor: Editor) => {
@@ -132,6 +136,9 @@ export default function Whiteboard({ roomCode, children }: WhiteboardProps) {
     // editor.deleteShapes = onlineOnly(editor.deleteShapes.bind(editor), store);
     // // @ts-ignore
     // editor.deleteShape = onlineOnly(editor.deleteShape.bind(editor), store);
+    setTimeout(() => {
+      editor.zoomToFit();
+    }, 1000);
   };
 
   return (

@@ -48,7 +48,7 @@ function pushState(roomCode: string, data: any) {
     room.indexOffset = 0;
   }
 
-  if (room.states.length > 50) {
+  while (room.states.length > 5) {
     room.states.shift();
   }
 }
@@ -132,12 +132,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('updates', (data) => {
-    console.log("got update");
     if (!currentRoom) {
       socket.emit('must-join-a-room');
       return;
     }
-    console.log("was in a room");
 
     socket.to(currentRoom).emit('updates', data);
   });
@@ -185,7 +183,7 @@ io.on('connection', (socket) => {
       socket.emit('must-join-a-room');
       return;
     }
-    pushState(currentRoom, data.shapes);
+    pushState(currentRoom, data);
   });
 
   socket.on('erase-all', (data) => {
