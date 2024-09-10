@@ -14,7 +14,7 @@
     "@serwist/precaching": "^9.0.7",
     "@serwist/sw": "^9.0.7",
     "@tldraw/tldraw": "^2.4.6",
-    "next": "~14.2.8",
+    "next": "~14.2.9",
     "partykit": "^0.0.30",
     "partysocket": "0.0.0-fffe721",
     "react": "^18.3.1",
@@ -30,7 +30,7 @@
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
     "eslint": "latest",
-    "eslint-config-next": "^14.2.8",
+    "eslint-config-next": "^14.2.9",
     "postcss": "latest",
     "tailwindcss": "latest",
     "typescript": "latest"

@@ -146,6 +146,8 @@ export default function Whiteboard({ roomCode, children }: WhiteboardProps) {
     }, 1000);
   };
 
+
+
   return (
     <div className="tldraw__editor">
       <Tldraw

@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     },
     description: APP_DESCRIPTION,
   },
-  // manifest: new URL("/manifest.json", "https://fosse.co/board/").href,
+  metadataBase: new URL("https://fosse.co/board/"),
 };
 
 export const viewport: Viewport = {
@@ -56,9 +56,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" dir="ltr">
-      {/* <head /> */}
       <head>
-        <link rel="manifest" href="/board/manifest.webmanifest" crossOrigin="use-credentials" />
+        <link key="manifest" rel="manifest" href="/board/manifest.webmanifest" crossOrigin="use-credentials" />
       </head>
       <body>{children}</body>
     </html>
