@@ -1,14 +1,22 @@
 'use client'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 const LandingPage = () => {
   const [roomCode, setRoomCode] = useState('');
   const router = useRouter();
 
+  useEffect(() => {
+    const savedRoomCode = localStorage.getItem('roomCode');
+    if (savedRoomCode) {
+      setRoomCode(savedRoomCode);
+    }
+  }, []);
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (roomCode) {
+      localStorage.setItem("roomCode", roomCode);
       router.push(`/${roomCode}`);
     }
   };
@@ -16,6 +24,7 @@ const LandingPage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRoomCode(e.target.value.toLowerCase());
   };
+
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">

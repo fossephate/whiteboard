@@ -138,6 +138,11 @@ export default function Whiteboard({ roomCode, children }: WhiteboardProps) {
     // editor.deleteShape = onlineOnly(editor.deleteShape.bind(editor), store);
     setTimeout(() => {
       editor.zoomToFit();
+      // if we over zoomed, zoom back out to the default position:
+      let newZoom = editor.getCamera().z;
+      if (newZoom > 1) {
+        editor.setCamera({ x: 0, y: 0, z: 1 });
+      }
     }, 1000);
   };
 

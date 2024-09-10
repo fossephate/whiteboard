@@ -26,6 +26,7 @@ const Home: FC<PageProps> = ({ params }) => {
         if (roomCode !== lowercaseRoomCode) {
             router.replace(`/${lowercaseRoomCode}`);
         }
+        localStorage.setItem("roomCode", roomCode);
     }, [roomCode, router]);
 
     return (

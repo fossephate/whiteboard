@@ -11,9 +11,9 @@ export function Panel(props: any) {
 
   const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches;
 
-  React.useEffect(() => {
-    editor.zoomToFit();
-  }, []);
+  // React.useEffect(() => {
+  //   editor.zoomToFit();
+  // }, []);
 
   React.useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 768px)");
