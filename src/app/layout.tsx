@@ -1,7 +1,6 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
-import Head from "next/head";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 const APP_NAME = "Fridge Board";
 const APP_DEFAULT_TITLE = "FridgeBoard";
@@ -19,7 +18,6 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "default",
     title: APP_DEFAULT_TITLE,
-    // startUpImage: [],
   },
   formatDetection: {
     telephone: false,
@@ -41,7 +39,6 @@ export const metadata: Metadata = {
     },
     description: APP_DESCRIPTION,
   },
-  metadataBase: new URL("https://fosse.co/board/"),
 };
 
 export const viewport: Viewport = {
@@ -56,9 +53,6 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" dir="ltr">
-      <head>
-        <link key="manifest" rel="manifest" href="/board/manifest.webmanifest" crossOrigin="use-credentials" />
-      </head>
       <body>{children}</body>
     </html>
   );

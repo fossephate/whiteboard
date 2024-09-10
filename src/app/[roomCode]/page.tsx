@@ -22,9 +22,9 @@ const Home: FC<PageProps> = ({ params }) => {
     const router = useRouter();
 
     let isInstalled = false;
-    // if (typeof window !== undefined) {
-    //     isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches;
-    // }
+    if (typeof window !== undefined) {
+        isInstalled = window.matchMedia('(display-mode: standalone)').matches;
+    }
 
     useEffect(() => {
         const lowercaseRoomCode = roomCode.toLowerCase();
@@ -62,6 +62,21 @@ const Home: FC<PageProps> = ({ params }) => {
     const handleDismiss = () => {
         setShowInstallBanner(false);
     };
+
+
+    // this is some bs because next doesn't respect the base path for manifest files and it can't be overriden:
+    useEffect(() => {
+        // Check if the document is loaded and if it's on the client
+        if (typeof document !== 'undefined') {
+            // Create the manifest link tag
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = '/board/manifest.webmanifest';
+            manifestLink.crossOrigin = 'use-credentials';
+            // Prepend the manifest link to the head
+            document.head.prepend(manifestLink);
+        }
+    }, []);
 
     return (
         <TldrawProvider>
