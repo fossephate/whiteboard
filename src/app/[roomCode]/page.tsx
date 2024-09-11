@@ -58,7 +58,7 @@ const Home: FC<PageProps> = ({ params }) => {
         }
 
         if (localStorage.getItem("bannerDismissed") == null) {
-            if (!isInStandaloneMode && !isIos) {
+            if (!isInStandaloneMode && !isIosDevice) {
                 setShowInstallBanner(true);
             }
         }
