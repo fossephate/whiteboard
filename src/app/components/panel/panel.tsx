@@ -2,6 +2,7 @@ import * as React from 'react'
 import styles from './panel.module.css'
 import { GitHubLogoIcon, HamburgerMenuIcon, EnterFullScreenIcon, ExitFullScreenIcon } from '@radix-ui/react-icons';
 import { DefaultColorStyle, DefaultSizeStyle, useEditor } from '@tldraw/tldraw';
+import Link from 'next/link';
 
 export function Panel(props: any) {
 
@@ -48,14 +49,18 @@ export function Panel(props: any) {
         </a>
       </div> */}
       {!isInstalled && isMobile && !props.isFullscreen && (<div className={[styles.container, styles.top, styles.right].join(' ')}>
-        <a
+        {/* <a
           href="https://github.com/fossephate/fridge-board"
           target="_blank"
           rel="noopener"
-          className="focus:outline-none"
-        >
+          style={{ textDecoration: 'none' }}
+        // className="focus:outline-none"
+        // onClick={() => { location.href = "https://github.com/fossephate/fridge-board" }}
+        > */}
+        <Link href="https://github.com/fossephate/fridge-board">
           <GitHubLogoIcon height={32} width={32} />
-        </a>
+        </Link>
+        {/* </a> */}
       </div>)}
 
       {/* <div className={[styles.status].join(' ')}>

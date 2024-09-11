@@ -42,7 +42,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FFFFFF",
+  themeColor: "#282828",
+  // themeColor: "#f9fafb",// off-white
   viewportFit: "cover",
   maximumScale: 1,
   minimumScale: 1,
@@ -53,6 +54,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" dir="ltr">
+      <head>
+        <link key="manifest" rel="manifest" href="/board/manifest.webmanifest" crossOrigin="use-credentials" />
+        {/* <meta name="theme-color" content="#f9fafb" /> */}
+      </head>
       <body>{children}</body>
     </html>
   );
