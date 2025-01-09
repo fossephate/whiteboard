@@ -9,17 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@radix-ui/react-icons": "^1.3.0",
-    "@serwist/next": "^9.0.7",
-    "@serwist/precaching": "^9.0.7",
-    "@serwist/sw": "^9.0.7",
+    "@radix-ui/react-icons": "^1.3.2",
+    "@serwist/next": "^9.0.11",
+    "@serwist/precaching": "^9.0.11",
+    "@serwist/sw": "^9.0.11",
     "@tldraw/tldraw": "^2.4.6",
-    "next": "~14.2.9",
+    "next": "~14.2.23",
     "partykit": "^0.0.30",
     "partysocket": "0.0.0-fffe721",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "socket.io-client": "^4.7.5",
+    "socket.io-client": "^4.8.1",
     "y-partykit": "^0.0.9",
     "y-utility": "^0.1.4",
     "y-websocket": "^1.5.4"
@@ -30,7 +30,7 @@
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
     "eslint": "latest",
-    "eslint-config-next": "^14.2.9",
+    "eslint-config-next": "^14.2.23",
     "postcss": "latest",
     "tailwindcss": "latest",
     "typescript": "latest"

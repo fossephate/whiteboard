@@ -62,8 +62,12 @@ async function saveRoomState() {
 
     // Save each room's state to a separate file
     for (const [roomCode, roomData] of Object.entries(rooms)) {
-      const filePath = path.join(stateDir, `${roomCode}.json`);
-      await fs.writeFile(filePath, JSON.stringify(roomData, null, 2));
+      try {
+        const filePath = path.join(stateDir, `${roomCode}.json`);
+        await fs.writeFile(filePath, JSON.stringify(roomData, null, 2));
+      } catch (error) {
+        console.error(`Error loading room ${roomCode}:`, error);
+      }
     }
 
     console.log('Room states saved successfully.');
@@ -83,11 +87,15 @@ async function loadRoomStates() {
     const files = await fs.readdir(stateDir);
 
     for (const file of files) {
-      if (file.endsWith('.json')) {
-        const roomCode = path.basename(file, '.json');
-        const filePath = path.join(stateDir, file);
-        const data = await fs.readFile(filePath, 'utf8');
-        rooms[roomCode] = JSON.parse(data);
+      try {
+        if (file.endsWith('.json')) {
+          const roomCode = path.basename(file, '.json');
+          const filePath = path.join(stateDir, file);
+          const data = await fs.readFile(filePath, 'utf8');
+          rooms[roomCode] = JSON.parse(data);
+        }
+      } catch (error) {
+        console.error(`Error loading room ${file}:`, error);
       }
     }
 
@@ -107,6 +115,8 @@ setInterval(() => {
 
 io.on('connection', (socket) => {
   let currentRoom: any = null;
+
+  console.log('someone connected', socket.id);
 
   socket.emit('must-join-a-room');
 
@@ -139,15 +149,6 @@ io.on('connection', (socket) => {
 
     socket.to(currentRoom).emit('updates', data);
   });
-
-
-
-
-
-
-
-
-
 
 
   socket.on('undo', () => {
